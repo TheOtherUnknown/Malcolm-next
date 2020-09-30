@@ -176,6 +176,7 @@ pip-selfcheck.json
 ### VisualStudioCode Patch ###
 # Ignore all local history of files
 .history
+.vscode
 
 # End of https://www.toptal.com/developers/gitignore/api/python,venv,visualstudiocode,linux
 config.ini
