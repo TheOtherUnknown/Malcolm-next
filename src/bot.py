@@ -4,6 +4,7 @@ import configparser, discord, sys
 
 from cogs.joinleave import JoinLeave
 from cogs.utils import Utils
+from cogs.trivia import Trivia
 
 intents = discord.Intents()
 intents.members = True # Join/Leave messages
@@ -26,7 +27,7 @@ async def on_ready():
 
 
 bot.add_cog(JoinLeave(bot))
-# bot.add_cog(Trivia(bot))
+bot.add_cog(Trivia(bot))
 bot.add_cog(Utils(bot))
 
 bot.owner_id = config['API']['OwnerID']
