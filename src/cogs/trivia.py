@@ -1,6 +1,6 @@
 from discord.ext import commands
 import sqlite3
-from time import sleep
+from asyncio import sleep
 
 db = sqlite3.connect('data/trivia.db')
 cur = db.cursor()
@@ -41,12 +41,13 @@ class Trivia(commands.Cog):
             play = True
             scores = {}
 
-            def check(message):  # Predicate function for bot.wait_for()
+            def check(message):
+                # Predicate function for bot.wait_for(). Is the channel sent == the context channel?
                 return message.channel == ctx.channel
 
             while play:
                 question = get_question()
-                sleep(3)
+                await sleep(2)
                 await ctx.send(question[0])
                 try:
                     resp = await self.bot.wait_for('message',
