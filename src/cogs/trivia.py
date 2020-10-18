@@ -15,11 +15,19 @@ def get_question():
 
 
 def check_winner(scores, goal):
+    # Is there a player in scores dict with a score of goal? If so, return a tuple. Else None
     for player in scores:
         if scores[player] == goal:
             scores.pop(player)
             return (player, (scores.keys()))  # Return (winner, (losers))
         return  # Or none
+
+
+def tally_scores(results):
+    cur.execute('UPDATE score SET rank = rank + 1 WHERE id = ?', results[0])
+    for loser in results[1]:
+        cur.execute('UPDATE score SET losses = losses + 1 WHERE id = ?', loser)
+    db.commit()
 
 
 class Trivia(commands.Cog):
@@ -74,4 +82,5 @@ class Trivia(commands.Cog):
                 round_result = check_winner(scores, goal)
                 if round_result is not None:
                     play = False
+                    tally_scores(round_result)
                     await ctx.send(str(resp.author) + ' Wins!')
