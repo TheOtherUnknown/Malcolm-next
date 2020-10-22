@@ -1,5 +1,5 @@
 from discord.ext import commands
-import sqlite3
+import sqlite3, discord
 from asyncio import sleep
 
 db = sqlite3.connect('data/trivia.db')
@@ -8,10 +8,11 @@ locked_channels = []  # Channel IDs that are currently in use by a game
 
 
 # Helper methods
+# Get one random (question, answer) from db
 def get_question():
     return cur.execute(
         'SELECT question, answer FROM trivia ORDER BY Random() LIMIT 1'
-    ).fetchone()  # Get one random (question, answer) from db
+    ).fetchone()
 
 
 def check_winner(scores, goal):
@@ -22,7 +23,7 @@ def check_winner(scores, goal):
             return (player, (scores.keys()))  # Return (winner, (losers))
         return  # Or none
 
-
+# Takes a tuple in the format (winner, (loser, loser)) and does the needful in the DB
 def tally_scores(results):
     cur.execute('UPDATE score SET rank = rank + 1 WHERE id = ?', results[0])
     for loser in results[1]:
@@ -42,7 +43,8 @@ class Trivia(commands.Cog):
 
     @trivia.command()
     async def start(self, ctx, goal=5):
-        if ctx.channel.id not in locked_channels:  # Is somone trying to start a second game in the same channel?
+        """Starts a new trivia game in the current channel"""
+        if ctx.channel.id not in locked_channels:  # Ensure someone is not trying to start two games in the same channel
             locked_channels.append(ctx.channel.id)
             await ctx.send(
                 'Starting trivia. The first to {} points wins!'.format(goal))
@@ -60,27 +62,38 @@ class Trivia(commands.Cog):
                 try:
                     resp = await self.bot.wait_for('message',
                                                    check=check,
-                                                   timeout=60.0)
+                                                   timeout=60.0) # Wait 60secs for an answer
                 except TimeoutError:
                     locked_channels.remove(ctx.channel.id)
-                    await ctx.send('Alright then, exiting...')
+                    await ctx.send('Alright then, exiting...') # No answer? Then stop the game
                     break
-                if resp.content == "stop":  # user wants to stop the game
+                if resp.content == "stop":  # The answer is 'stop'? End the game
                     await ctx.send('Exiting...')
                     locked_channels.remove(ctx.channel.id)
                     break
-                elif resp.content == question[1]:
+                elif resp.content == question[1]: # Someone got the question right
                     await ctx.send('You got it!')
                     scores[resp.author.id] += 1
-                else:
+                else: # Somone got the question wrong
                     await ctx.send('Nope! The correct answer was {}'.format(
                         question[1]))
-                    if resp.author.id not in scores.keys():
+                    if resp.author.id not in scores.keys(): # Even if they miss it, losses needed to be counted
                         scores[
                             resp.author.
-                            id] = 0  # Even if they miss it, losses needed to be counted
+                            id] = 0 
                 round_result = check_winner(scores, goal)
                 if round_result is not None:
                     play = False
                     tally_scores(round_result)
                     await ctx.send(str(resp.author) + ' Wins!')
+
+    @trivia.command()
+    async def top(self, ctx):
+        """Sends an embed with the top 5 ranked users in trivia"""
+        embed = discord.Embed(title="Trivia Leaderbord")
+        for leader in cur.execute(
+                'SELECT id, rank FROM score ORDER BY rank DESC LIMIT 5'):
+            embed.add_field(name=self.bot.get_user(leader[0]),
+                            value=f"Wins: {leader[1]}",
+                            inline=False)
+        await ctx.send(embed=embed)
