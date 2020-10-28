@@ -7,7 +7,7 @@ verify_ssl = true
 
 [packages]
 "discord.py" = "*"
-pytest = "*"
+flake8 = "*"
 
 [requires]
 python_version = "3.8"

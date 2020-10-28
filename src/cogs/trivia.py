@@ -21,7 +21,8 @@ def check_winner(scores, goal):
         if scores[player] == goal:
             scores.pop(player)
             return (player, (scores.keys()))  # Return (winner, (losers))
-        return  # Or none
+        return None  # Or none
+
 
 # Takes a tuple in the format (winner, (loser, loser)) and does the needful in the DB
 def tally_scores(results):
@@ -44,7 +45,8 @@ class Trivia(commands.Cog):
     @trivia.command()
     async def start(self, ctx, goal=5):
         """Starts a new trivia game in the current channel"""
-        if ctx.channel.id not in locked_channels:  # Ensure someone is not trying to start two games in the same channel
+        # Ensure someone is not trying to start two games in the same channel
+        if ctx.channel.id not in locked_channels:
             locked_channels.append(ctx.channel.id)
             await ctx.send(
                 'Starting trivia. The first to {} points wins!'.format(goal))
@@ -60,27 +62,28 @@ class Trivia(commands.Cog):
                 await sleep(2)
                 await ctx.send(question[0])
                 try:
-                    resp = await self.bot.wait_for('message',
-                                                   check=check,
-                                                   timeout=60.0) # Wait 60secs for an answer
+                    resp = await self.bot.wait_for(
+                        'message', check=check,
+                        timeout=60.0)  # Wait 60secs for an answer
                 except TimeoutError:
                     locked_channels.remove(ctx.channel.id)
-                    await ctx.send('Alright then, exiting...') # No answer? Then stop the game
+                    await ctx.send('Alright then, exiting...'
+                                   )  # No answer? Then stop the game
                     break
                 if resp.content == "stop":  # The answer is 'stop'? End the game
                     await ctx.send('Exiting...')
                     locked_channels.remove(ctx.channel.id)
                     break
-                elif resp.content == question[1]: # Someone got the question right
+                if resp.content == question[
+                        1]:  # Someone got the question right
                     await ctx.send('You got it!')
                     scores[resp.author.id] += 1
-                else: # Somone got the question wrong
+                else:  # Somone got the question wrong
                     await ctx.send('Nope! The correct answer was {}'.format(
                         question[1]))
-                    if resp.author.id not in scores.keys(): # Even if they miss it, losses needed to be counted
-                        scores[
-                            resp.author.
-                            id] = 0 
+                    # Even if they miss it, losses needed to be counted
+                    if resp.author.id not in scores.keys():
+                        scores[resp.author.id] = 0
                 round_result = check_winner(scores, goal)
                 if round_result is not None:
                     play = False

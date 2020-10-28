@@ -1,4 +1,6 @@
 {
     "python.pythonPath": ".venv/bin/python",
-    "python.formatting.provider": "yapf"
+    "python.formatting.provider": "yapf",
+    "python.linting.enabled": true,
+    "python.linting.flake8Enabled": true
 }

@@ -7,10 +7,10 @@ from cogs.utils import Utils
 from cogs.trivia import Trivia
 
 intents = discord.Intents()
-intents.members = True # Join/Leave messages
-intents.guild_messages = True # Trivia
-intents.bans = True # Ban messages
-intents.guilds = True # Docs says so
+intents.members = True  # Join/Leave messages
+intents.guild_messages = True  # Trivia
+intents.bans = True  # Ban messages
+intents.guilds = True  # Docs says so
 
 bot = commands.Bot(command_prefix=',', intents=intents)
 
@@ -19,6 +19,7 @@ try:
     config.read(sys.argv[1])
 except (IndexError, IOError):
     print('Failed to read config file!')
+
 
 @bot.event
 async def on_ready():

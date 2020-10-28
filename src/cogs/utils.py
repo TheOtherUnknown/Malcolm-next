@@ -1,6 +1,16 @@
+import discord, os, asyncio, random
 from discord.ext import commands
 from datetime import datetime, timedelta
-import discord, os, asyncio, random
+
+
+# Helper methods
+# Gets the user's roles, converts them to strings, and makes a comma seperated list out of them.
+# Ignore @everyone if they have other roles
+def role_list(user):
+    roles = list(map(str, user.roles))
+    if len(roles) != 1:
+        roles.remove('@everyone')
+    return ', '.join(roles)
 
 
 class Utils(commands.Cog):
@@ -28,12 +38,33 @@ class Utils(commands.Cog):
         embed = discord.Embed(
             title="Malcolm-Next",
             url="https://github.com/TheOtherUnknown/Malcolm-next")
-        embed.add_field(name="Running commit", value=commit,
+        embed.add_field(name="Running Commit", value=commit,
                         inline=False)  # What commit is running?
-        embed.add_field(name="Server count",
+        embed.add_field(name="Server Count",
                         value=(len(self.bot.guilds)),
                         inline=False)
         embed.add_field(name="Owner", value=self.bot.Owner, inline=False)
+        await ctx.send(embed=embed)
+
+    @commands.command(brief='Displays information about users')
+    async def userinfo(self, ctx, userid=None):
+        if ctx.message.mentions:
+            user = ctx.message.mentions[0]
+        elif userid:
+            user = ctx.guild.get_member(int(userid))
+            if not user:
+                await ctx.send("Cannot find user with that ID!")
+                return
+        else:
+            user = ctx.author
+        embed = discord.Embed(title=str(user))
+        embed.set_thumbnail(url=user.avatar_url)
+        create = f"{user.created_at.ctime()}, {(datetime.now() - user.created_at).days} days ago"
+        embed.add_field(name='Account Created', value=create, inline=False)
+        join = f"{user.joined_at.ctime()}, {(datetime.now() - user.joined_at).days} days ago"
+        embed.add_field(name="Join Date", value=join, inline=False)
+        embed.add_field(name="Roles", value=role_list(user), inline=False)
+        embed.add_field(name="ID", value=user.id)
         await ctx.send(embed=embed)
 
     @commands.command(
