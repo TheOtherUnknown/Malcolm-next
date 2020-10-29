@@ -1,6 +1,7 @@
 from discord.ext import commands
 import sqlite3, discord
 from asyncio import sleep
+from collections import Counter
 
 db = sqlite3.connect('data/trivia.db')
 cur = db.cursor()
@@ -26,9 +27,9 @@ def check_winner(scores, goal):
 
 # Takes a tuple in the format (winner, (loser, loser)) and does the needful in the DB
 def tally_scores(results):
-    cur.execute('UPDATE score SET rank = rank + 1 WHERE id = ?', results[0])
+    cur.execute('UPDATE score SET rank=rank + 1 WHERE id=?', (results[0],))
     for loser in results[1]:
-        cur.execute('UPDATE score SET losses = losses + 1 WHERE id = ?', loser)
+        cur.execute('UPDATE score SET losses = losses + 1 WHERE id=?', (loser,))
     db.commit()
 
 
@@ -51,7 +52,7 @@ class Trivia(commands.Cog):
             await ctx.send(
                 'Starting trivia. The first to {} points wins!'.format(goal))
             play = True
-            scores = {}
+            scores = Counter()
 
             def check(message):
                 # Predicate function for bot.wait_for(). Is the channel sent == the context channel?
@@ -93,10 +94,27 @@ class Trivia(commands.Cog):
     @trivia.command()
     async def top(self, ctx):
         """Sends an embed with the top 5 ranked users in trivia"""
-        embed = discord.Embed(title="Trivia Leaderbord")
+        embed = discord.Embed(title="Trivia Leaderboard")
         for leader in cur.execute(
                 'SELECT id, rank FROM score ORDER BY rank DESC LIMIT 5'):
             embed.add_field(name=self.bot.get_user(leader[0]),
                             value=f"Wins: {leader[1]}",
                             inline=False)
+        await ctx.send(embed=embed)
+
+    @trivia.command()
+    async def stats(self, ctx):
+        """Returns your trivia win/loss statistics"""
+        embed = discord.Embed(
+            title=f"Trivia Stats For {ctx.author}")
+        stats = cur.execute('SELECT rank, losses FROM score WHERE id = ?',
+                            (ctx.author.id,)).fetchone()
+        if stats is None:
+            await ctx.send(
+                "Hmm, can't find any stats for you. Try playing at least one game."
+            )
+            return
+        embed.add_field(name="Wins", value=stats[0], inline=True)
+        embed.add_field(name="Losses", value=stats[1], inline=True)
+        embed.add_field(name="Win Ratio", value="{:.2%}".format(stats[0]/(stats[0] + stats[1])), inline=True)
         await ctx.send(embed=embed)
