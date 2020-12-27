@@ -2,8 +2,9 @@ from discord.ext import commands
 import sqlite3, discord
 from asyncio import sleep
 from collections import Counter
+from Levenshtein import jaro_winkler
 
-db = sqlite3.connect('data/trivia.db')
+db = sqlite3.connect('data/malcolm.db')
 cur = db.cursor()
 locked_channels = []  # Channel IDs that are currently in use by a game
 
@@ -27,9 +28,10 @@ def check_winner(scores, goal):
 
 # Takes a tuple in the format (winner, (loser, loser)) and does the needful in the DB
 def tally_scores(results):
-    cur.execute('UPDATE score SET rank=rank + 1 WHERE id=?', (results[0],))
+    cur.execute('UPDATE score SET rank=rank + 1 WHERE id=?', (results[0], ))
     for loser in results[1]:
-        cur.execute('UPDATE score SET losses = losses + 1 WHERE id=?', (loser,))
+        cur.execute('UPDATE score SET losses = losses + 1 WHERE id=?',
+                    (loser, ))
     db.commit()
 
 
@@ -55,8 +57,9 @@ class Trivia(commands.Cog):
             scores = Counter()
 
             def check(message):
-                # Predicate function for bot.wait_for(). Is the channel sent == the context channel?
-                return message.channel == ctx.channel
+                # Predicate function for bot.wait_for().
+                # Is the channel sent == the context channel and not the bot?
+                return message.channel == ctx.channel and message.author != self.bot.user
 
             while play:
                 question = get_question()
@@ -75,11 +78,12 @@ class Trivia(commands.Cog):
                     await ctx.send('Exiting...')
                     locked_channels.remove(ctx.channel.id)
                     break
-                if resp.content == question[
-                        1]:  # Someone got the question right
+                # This line uses the Jaro-Winkler alogrithm to determine
+                # if the input answer is *close* to the correct one.
+                if jaro_winkler(resp.content, question[1]) > 0.9:
                     await ctx.send('You got it!')
                     scores[resp.author.id] += 1
-                else:  # Somone got the question wrong
+                else:  # Someone got the question wrong
                     await ctx.send('Nope! The correct answer was {}'.format(
                         question[1]))
                     # Even if they miss it, losses needed to be counted
@@ -105,10 +109,9 @@ class Trivia(commands.Cog):
     @trivia.command()
     async def stats(self, ctx):
         """Returns your trivia win/loss statistics"""
-        embed = discord.Embed(
-            title=f"Trivia Stats For {ctx.author}")
+        embed = discord.Embed(title=f"Trivia Stats For {ctx.author}")
         stats = cur.execute('SELECT rank, losses FROM score WHERE id = ?',
-                            (ctx.author.id,)).fetchone()
+                            (ctx.author.id, )).fetchone()
         if stats is None:
             await ctx.send(
                 "Hmm, can't find any stats for you. Try playing at least one game."
@@ -116,5 +119,8 @@ class Trivia(commands.Cog):
             return
         embed.add_field(name="Wins", value=stats[0], inline=True)
         embed.add_field(name="Losses", value=stats[1], inline=True)
-        embed.add_field(name="Win Ratio", value="{:.2%}".format(stats[0]/(stats[0] + stats[1])), inline=True)
+        embed.add_field(name="Win Ratio",
+                        value="{:.2%}".format(stats[0] /
+                                              (stats[0] + stats[1])),
+                        inline=True)
         await ctx.send(embed=embed)

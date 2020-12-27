@@ -43,7 +43,7 @@ class Utils(commands.Cog):
         embed.add_field(name="Server Count",
                         value=(len(self.bot.guilds)),
                         inline=False)
-        embed.add_field(name="Owner", value=self.bot.Owner, inline=False)
+        embed.add_field(name="Owner", value=self.bot.owner_id, inline=False)
         await ctx.send(embed=embed)
 
     @commands.command(brief='Displays information about users')

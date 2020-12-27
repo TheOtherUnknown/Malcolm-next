@@ -8,6 +8,7 @@ verify_ssl = true
 [packages]
 "discord.py" = "*"
 flake8 = "*"
+python-levenshtein = "*"
 
 [requires]
 python_version = "3.8"
