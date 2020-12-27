@@ -68,8 +68,7 @@ class Utils(commands.Cog):
         await ctx.send(embed=embed)
 
     @commands.command(
-        brief=
-        'Add yourself to the verified user role in the server, if you qualify')
+        brief='Add yourself to the verified user role in the server, if you qualify')
     async def verify(self, ctx):
         joindate = ctx.author.joined_at
         if datetime.now() > (joindate + timedelta(days=1)):  # One day

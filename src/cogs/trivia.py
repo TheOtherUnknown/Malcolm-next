@@ -1,3 +1,4 @@
+from typing import Tuple
 from discord.ext import commands
 import sqlite3, discord
 from asyncio import sleep
@@ -10,15 +11,8 @@ locked_channels = []  # Channel IDs that are currently in use by a game
 
 
 # Helper methods
-# Get one random (question, answer) from db
-def get_question():
-    return cur.execute(
-        'SELECT question, answer FROM trivia ORDER BY Random() LIMIT 1'
-    ).fetchone()
-
-
 def check_winner(scores, goal):
-    # Is there a player in scores dict with a score of goal? If so, return a tuple. Else None
+    """Is there a player in scores dict with a score of goal? If so, return a tuple. Else None"""
     for player in scores:
         if scores[player] == goal:
             scores.pop(player)
@@ -26,8 +20,23 @@ def check_winner(scores, goal):
         return None  # Or none
 
 
-# Takes a tuple in the format (winner, (loser, loser)) and does the needful in the DB
-def tally_scores(results):
+def get_dist(a: str, b: str) -> float:
+    """Get a float between 0-1 indicating the similarity of two strings using
+     the Jaro-Winkler algorithim"""
+    return jaro_winkler(a, b)
+
+
+def get_question() -> Tuple[str, str]:
+    """Get one random (question, answer) from db"""
+    return cur.execute(
+        'SELECT question, answer FROM trivia ORDER BY Random() LIMIT 1'
+    ).fetchone()
+
+
+def tally_scores(
+        results: Tuple[discord.User, Tuple[discord.User, ...]]) -> None:
+    """Takes a tuple in the format (winner, (loser, loser)) and does the
+    needful in the DB"""
     cur.execute('UPDATE score SET rank=rank + 1 WHERE id=?', (results[0], ))
     for loser in results[1]:
         cur.execute('UPDATE score SET losses = losses + 1 WHERE id=?',
@@ -56,9 +65,9 @@ class Trivia(commands.Cog):
             play = True
             scores = Counter()
 
-            def check(message):
-                # Predicate function for bot.wait_for().
-                # Is the channel sent == the context channel and not the bot?
+            def check(message) -> bool:
+                """Predicate function for bot.wait_for().
+                Is the channel sent == the context channel and not the bot?"""
                 return message.channel == ctx.channel and message.author != self.bot.user
 
             while play:
@@ -78,9 +87,9 @@ class Trivia(commands.Cog):
                     await ctx.send('Exiting...')
                     locked_channels.remove(ctx.channel.id)
                     break
-                # This line uses the Jaro-Winkler alogrithm to determine
-                # if the input answer is *close* to the correct one.
-                if jaro_winkler(resp.content, question[1]) > 0.9:
+                # This line uses a fuzzy-match algorithm defined in get_ratio
+                # to check if the input answer is *close* to the correct one.
+                if get_dist(resp.content, question[1]) > .89:
                     await ctx.send('You got it!')
                     scores[resp.author.id] += 1
                 else:  # Someone got the question wrong
@@ -124,3 +133,10 @@ class Trivia(commands.Cog):
                                               (stats[0] + stats[1])),
                         inline=True)
         await ctx.send(embed=embed)
+
+    @commands.command(usage="Phrase 1|Phrase 2")
+    async def dist(self, ctx, *, arg):
+        """Returns the distance of similarity between two strings seperated by a
+        pipe |"""
+        items = arg.split('|')
+        await ctx.send(round(get_dist(items[0], items[1]), 2))
