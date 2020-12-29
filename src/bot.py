@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 from discord.ext import commands
-import configparser, discord, sys
+import configparser, discord, sys, sqlite3, logging
 
 from cogs.joinleave import JoinLeave
 from cogs.roles import Roles
@@ -10,7 +10,7 @@ from cogs.trivia import Trivia
 
 class Malcolm(commands.Bot):
     """An extension of discord.ext.commands.Bot with configuration
-    management"""
+    management and database management"""
     def __init__(self,
                  command_prefix,
                  configpath: str,
@@ -54,7 +54,12 @@ intents.members = True  # Join/Leave messages
 intents.guild_messages = True  # Trivia
 intents.bans = True  # Ban messages
 intents.guilds = True  # Docs says so
+intents.guild_reactions = True  # For roles
 
+db = sqlite3.connect('data/malcolm.db')
+cur = db.cursor()
+
+logging.basicConfig(level=logging.WARN)
 bot = Malcolm(command_prefix=',', intents=intents, configpath=sys.argv[1])
 
 
@@ -65,8 +70,8 @@ async def on_ready():
 
 
 bot.add_cog(JoinLeave(bot))
-bot.add_cog(Trivia(bot))
+bot.add_cog(Trivia(bot, db, cur))
 bot.add_cog(Utils(bot))
-bot.add_cog(Roles(bot))
+bot.add_cog(Roles(bot, db, cur))
 
 bot.run()
