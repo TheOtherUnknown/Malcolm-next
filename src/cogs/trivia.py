@@ -40,11 +40,13 @@ class Trivia(commands.Cog):
                                                      ...]]) -> None:
         """Takes a tuple in the format (winner, (loser, loser)) and does the
         needful in the DB"""
-        self.cur.execute('UPDATE score SET rank=rank + 1 WHERE id=?',
-                         (results[0], ))
+        self.cur.execute(
+            'INSERT INTO score(id, rank) VALUES (?, 1) ON CONFLICT(id) DO UPDATE SET rank=rank+1',
+            (results[0], ))
         for loser in results[1]:
-            self.cur.execute('UPDATE score SET losses = losses + 1 WHERE id=?',
-                             (loser, ))
+            self.cur.execute(
+                'INSERT INTO score(id, losses) VALUES (?, 1) ON CONFLICT(id) DO UPDATE SET losses=losses+1',
+                (loser, ))
         self.db.commit()
 
     @commands.group(
@@ -69,7 +71,7 @@ class Trivia(commands.Cog):
                 Is the channel sent == the context channel and not the bot?"""
                 return message.channel == ctx.channel and message.author != self.bot.user
 
-            while play:
+            while play:  # TODO: Change this to True and use break/return
                 question = self.get_question()
                 await sleep(2)
                 await ctx.send(question[0])
@@ -102,22 +104,26 @@ class Trivia(commands.Cog):
                     play = False
                     self.tally_scores(round_result)
                     await ctx.send(str(resp.author) + ' Wins!')
+                    locked_channels.remove(ctx.channel.id)
 
     @trivia.command()
     async def top(self, ctx):
         """Sends an embed with the top 5 ranked users in trivia"""
         embed = discord.Embed(title="Trivia Leaderboard")
+        i = 1
         for leader in self.cur.execute(
-                'SELECT id, rank FROM score ORDER BY rank DESC LIMIT 5'):
-            embed.add_field(name=self.bot.get_user(leader[0]),
-                            value=f"Wins: {leader[1]}",
+                'SELECT id, rank, losses FROM score ORDER BY rank DESC LIMIT 5'
+        ):
+            embed.add_field(name=f"{i}. {self.bot.get_user(leader[0]).name}",
+                            value=f"{leader[1]} wins, {leader[2]} losses",
                             inline=False)
+            i += 1
         await ctx.send(embed=embed)
 
     @trivia.command()
     async def stats(self, ctx):
         """Returns your trivia win/loss statistics"""
-        embed = discord.Embed(title=f"Trivia Stats For {ctx.author}")
+        embed = discord.Embed(title=f"{ctx.author.name}'s trivia stats")
         stats = self.cur.execute('SELECT rank, losses FROM score WHERE id = ?',
                                  (ctx.author.id, )).fetchone()
         if stats is None:
@@ -125,9 +131,9 @@ class Trivia(commands.Cog):
                 "Hmm, can't find any stats for you. Try playing at least one game."
             )
             return
-        embed.add_field(name="Wins", value=stats[0], inline=True)
-        embed.add_field(name="Losses", value=stats[1], inline=True)
-        embed.add_field(name="Win Ratio",
+        embed.add_field(name="Wins", value=stats[0])
+        embed.add_field(name="Losses", value=stats[1])
+        embed.add_field(name="Win ratio",
                         value="{:.2%}".format(stats[0] /
                                               (stats[0] + stats[1])),
                         inline=True)
