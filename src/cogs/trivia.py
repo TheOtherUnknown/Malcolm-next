@@ -22,7 +22,7 @@ class Trivia(commands.Cog):
             if score == goal:
                 del scores[player]
                 return (player, (scores.elements()))  # Return (winner, (losers))
-            return None  # Or none
+        return None  # Or none
 
     def get_dist(self, a: str, b: str) -> float:
         """Get a float between 0-1 indicating the similarity of two strings using
