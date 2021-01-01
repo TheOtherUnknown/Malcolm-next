@@ -26,7 +26,8 @@ class Utils(commands.Cog):
         with open('data/excuses.txt') as f:
             while 1:
                 line = f.readline()
-                if not line: break
+                if not line:
+                    break
                 line_num += 1
                 if random.uniform(0, line_num) < 1:
                     selected = line
@@ -59,19 +60,20 @@ class Utils(commands.Cog):
             user = ctx.author
         embed = discord.Embed(title=str(user))
         embed.set_thumbnail(url=user.avatar_url)
-        create = f"{user.created_at.ctime()}, {(datetime.now() - user.created_at).days} days ago"
+        create = f"{user.created_at.ctime()}, {(datetime.utcnow() - user.created_at).days} days ago"
         embed.add_field(name='Account Created', value=create, inline=False)
-        join = f"{user.joined_at.ctime()}, {(datetime.now() - user.joined_at).days} days ago"
+        join = f"{user.joined_at.ctime()}, {(datetime.utcnow() - user.joined_at).days} days ago"
         embed.add_field(name="Join Date", value=join, inline=False)
         embed.add_field(name="Roles", value=role_list(user), inline=False)
         embed.add_field(name="ID", value=user.id)
         await ctx.send(embed=embed)
 
     @commands.command(
-        brief='Add yourself to the verified user role in the server, if you qualify')
+        brief=
+        'Add yourself to the verified user role in the server, if you qualify')
     async def verify(self, ctx):
         joindate = ctx.author.joined_at
-        if datetime.now() > (joindate + timedelta(days=1)):  # One day
+        if datetime.utcnow() > (joindate + timedelta(days=1)):  # One day
             await ctx.author.add_roles(
                 discord.utils.get(ctx.guild.roles, name='Verified'))
             await ctx.message.add_reaction('✅')  # Check mark
