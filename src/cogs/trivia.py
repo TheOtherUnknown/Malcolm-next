@@ -90,7 +90,7 @@ class Trivia(commands.Cog):
                     break
                 # This line uses a fuzzy-match algorithm defined in get_ratio
                 # to check if the input answer is *close* to the correct one.
-                if self.get_dist(resp.content, question[1]) > .89:
+                if self.get_dist(resp.content, question[1]) > .84:
                     await ctx.send('You got it!')
                     scores[resp.author.id] += 1
                 else:  # Someone got the question wrong
