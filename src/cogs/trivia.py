@@ -15,13 +15,13 @@ class Trivia(commands.Cog):
         self.cur = cur
 
     # Helper methods
-    def check_winner(self, scores, goal):
-        """Is there a player in scores dict with a score of goal? If so,
+    def check_winner(self, scores: Counter, goal):
+        """Is there a player in scores counter with a score of goal? If so,
         return a tuple. Else None"""
-        for player in scores:
-            if scores[player] == goal:
-                scores.pop(player)
-                return (player, (scores.keys()))  # Return (winner, (losers))
+        for player, score in scores.items():
+            if score == goal:
+                del scores[player]
+                return (player, (scores.elements()))  # Return (winner, (losers))
             return None  # Or none
 
     def get_dist(self, a: str, b: str) -> float:
