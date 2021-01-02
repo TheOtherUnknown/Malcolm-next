@@ -1,9 +1,9 @@
 from typing import Tuple
 from discord.ext import commands
 import discord
-from asyncio import sleep
+from asyncio import sleep, TimeoutError
 from collections import Counter
-from Levenshtein import jaro_winkler
+from Levenshtein import ratio
 
 locked_channels = []  # Channel IDs that are currently in use by a game
 
@@ -25,9 +25,8 @@ class Trivia(commands.Cog):
         return None  # Or none
 
     def get_dist(self, a: str, b: str) -> float:
-        """Get a float between 0-1 indicating the similarity of two strings using
-         the Jaro-Winkler algorithim"""
-        return jaro_winkler(a, b)
+        """Get a float between 0-1 indicating the similarity of two strings"""
+        return ratio(a, b)
 
     def get_question(self) -> Tuple[str, str]:
         """Get one random (question, answer) from db"""
@@ -90,7 +89,7 @@ class Trivia(commands.Cog):
                     break
                 # This line uses a fuzzy-match algorithm defined in get_ratio
                 # to check if the input answer is *close* to the correct one.
-                if self.get_dist(resp.content, question[1]) > .84:
+                if self.get_dist(resp.content, question[1]) > .86:
                     await ctx.send('You got it!')
                     scores[resp.author.id] += 1
                 else:  # Someone got the question wrong
