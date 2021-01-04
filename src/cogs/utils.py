@@ -23,6 +23,37 @@ class Utils(commands.Cog):
         latency = round(self.bot.latency * 1000, 2)
         return await ctx.send('Pong! ' + str(latency) + 'ms')
 
+    @commands.command()
+    async def roll(self, ctx, roll='1d6'):
+        """Rolls a dice"""
+        embed = discord.Embed(title='Dice Rolls')
+        try:
+            sides = int(roll.split('d')[1])
+            rolls = int(roll.split('d')[0])
+        except Exception:
+            await ctx.send('Wrong format, the commands format is `[number of rolls]#[number of sides]` eg.(1d5, or 10d45)')
+            return
+
+        if sides < 1:
+            sides = 1
+        elif sides > 1000000000000:
+            sides = 1000000000000
+
+        if rolls < 1:
+            rolls = 1
+        elif rolls > 100:
+            rolls = 100
+
+        total = 0
+
+        for x in range(rolls):
+            val = random.randint(1, sides)
+            total += val
+            embed.add_field(name=f"Dice  #{x}", value=val)
+
+        await ctx.send(embed=embed)
+        await ctx.send(f"The total of your roll is {total}")
+
     @commands.command(
         brief='Convenient solutions to inconvenient tech problems')
     async def bofh(self, ctx):
