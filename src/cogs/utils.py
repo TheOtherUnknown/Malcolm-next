@@ -17,6 +17,13 @@ class Utils(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
+    @commands.command(name="ping")
+    async def ping(self, ctx):
+        #Displays latency between client and bot
+        latency = round(self.bot.latency * 1000, 2)
+        return await ctx.send('Pong! ' + str(latency) + 'ms')
+
+
     @commands.command(
         brief='Convenient solutions to inconvenient tech problems')
     async def bofh(self, ctx):
