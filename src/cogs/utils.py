@@ -23,7 +23,6 @@ class Utils(commands.Cog):
         latency = round(self.bot.latency * 1000, 2)
         return await ctx.send('Pong! ' + str(latency) + 'ms')
 
-
     @commands.command(
         brief='Convenient solutions to inconvenient tech problems')
     async def bofh(self, ctx):
@@ -76,8 +75,7 @@ class Utils(commands.Cog):
         await ctx.send(embed=embed)
 
     @commands.command(
-        brief=
-        'Add yourself to the verified user role in the server, if you qualify')
+        brief='Add yourself to the verified user role in the server, if you qualify')
     async def verify(self, ctx):
         joindate = ctx.author.joined_at
         if datetime.utcnow() > (joindate + timedelta(days=1)):  # One day
@@ -89,7 +87,7 @@ class Utils(commands.Cog):
                 'You don\'t qualify to be verified yet! Check back 24 hours after you join.'
             )
 
-    ### START MOD COMMANDS ###
+    # == START MOD COMMANDS == #
     @commands.command(brief='Bans a user from the server', usage='@someone')
     @commands.has_permissions(ban_members=True)
     async def kb(self, ctx):
@@ -118,7 +116,7 @@ class Utils(commands.Cog):
             await asyncio.sleep(
                 1.2)  # Sleep for a bit so everything gets deleted on time
 
-    ### START OWNER COMMANDS ###
+    # == START OWNER COMMANDS == #
     @commands.command(hidden=True)
     @commands.is_owner()
     async def quit(self, ctx):
