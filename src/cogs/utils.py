@@ -30,10 +30,10 @@ class Utils(commands.Cog):
         try:
             sides = int(roll.split('d')[1])
             rolls = int(roll.split('d')[0])
-        except Exception as e:
+        except Exception:
             await ctx.send('Wrong format, the commands format is `[number of rolls]#[number of sides]` eg.(1d5, or 10d45)')
             return
-        
+       
         if sides < 1:
             sides = 1
         elif sides > 1000000000000:
@@ -53,8 +53,6 @@ class Utils(commands.Cog):
 
         await ctx.send(embed=embed)
         await ctx.send(f"The total of your roll is {total}")
-
-
 
     @commands.command(
         brief='Convenient solutions to inconvenient tech problems')
