@@ -33,7 +33,7 @@ class Utils(commands.Cog):
         except Exception:
             await ctx.send('Wrong format, the commands format is `[number of rolls]#[number of sides]` eg.(1d5, or 10d45)')
             return
-       
+
         if sides < 1:
             sides = 1
         elif sides > 1000000000000:
