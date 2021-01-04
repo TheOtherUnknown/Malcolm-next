@@ -25,8 +25,9 @@ class Trivia(commands.Cog):
         return None  # Or none
 
     def get_dist(self, a: str, b: str) -> float:
-        """Get a float between 0-1 indicating the similarity of two strings"""
-        return ratio(a, b)
+        """Get a float between 0-1 indicating the similarity of two strings,
+        case insensitive"""
+        return ratio(a.lower(), b.lower())
 
     def get_question(self) -> Tuple[str, str]:
         """Get one random (question, answer) from db"""
