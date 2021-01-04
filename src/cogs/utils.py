@@ -32,7 +32,7 @@ class Utils(commands.Cog):
             rolls = int(roll.split('d')[0])
         except Exception:
             await ctx.send(
-                'Wrong format, the commands format is `[number of rolls]#[number of sides]` eg.(1d5, or 10d45)'
+                'Wrong format, the commands format is `[number of rolls]d[number of sides]` eg.(1d5, or 10d45)'
             )
             return
 
@@ -52,9 +52,8 @@ class Utils(commands.Cog):
             val = random.randint(1, sides)
             total += val
             embed.add_field(name=f"Dice  #{x + 1}", value=val)
-
+        embed.set_footer(text=f"Total: {total}")
         await ctx.send(embed=embed)
-        await ctx.send(f"The total of your roll is {total}")
 
     @commands.command(
         brief='Convenient solutions to inconvenient tech problems')
@@ -107,9 +106,7 @@ class Utils(commands.Cog):
         embed.add_field(name="ID", value=user.id)
         await ctx.send(embed=embed)
 
-    @commands.command(
-        brief=
-        'Add yourself to the verified user role in the server, if you qualify')
+    @commands.command(brief='Add yourself to the verified user role in the server, if you qualify')
     async def verify(self, ctx):
         joindate = ctx.author.joined_at
         if datetime.utcnow() > (joindate + timedelta(days=1)):  # One day

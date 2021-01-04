@@ -75,18 +75,42 @@ class Roles(commands.Cog):
         await ctx.send('Role set!')
 
     @commands.Cog.listener()
-    async def on_reaction_add(self, react, user):
-        print('React listener fired')
-        chan_id = react.message.channel.id
-        if chan_id == int(
-                self.bot.getConfig('Roles', 'Channel')
-        ) and react.message.id == react.message.channel.last_message_id:
-            entry = self.cur.execute('SELECT * FROM roles where letter=?',
-                                     (get_letter(str(react), ))).fetchone()
-            role = discord.utils.get(react.guild.roles, name=entry[1])
-            if not role:
-                logging.error(
-                    'User attempted to add role %s which was not found, ignoring',
-                    entry[1])
-                return
-            await user.add_roles(role)
+    async def on_raw_reaction_add(self, payload):
+        # Is the react from the role channel?
+        if payload.channel_id == int(self.bot.getConfig('Roles', 'Channel')):
+            channel = self.bot.get_channel(payload.channel_id)
+            guild = self.bot.get_guild(payload.guild_id)
+            # Is it the last message in the channel?
+            if payload.message_id == channel.last_message_id:
+                entry = self.cur.execute(
+                    'SELECT * FROM roles where letter=?',
+                    (get_letter(str(payload.emoji), ))).fetchone()
+                role = discord.utils.get(guild.roles, name=entry[1])
+                if not role:
+                    logging.error(
+                        'User attempted to add role %s which was not found, ignoring',
+                        entry[1])
+                    return
+                await payload.member.add_roles(role)
+
+    @commands.Cog.listener()
+    async def on_raw_reaction_remove(self, payload):
+        # Is the react from the role channel?
+        if payload.channel_id == int(self.bot.getConfig('Roles', 'Channel')):
+            channel = self.bot.get_channel(payload.channel_id)
+            guild = self.bot.get_guild(payload.guild_id)
+            # Is it the last message in the channel?
+            if payload.message_id == channel.last_message_id:
+                entry = self.cur.execute(
+                    'SELECT * FROM roles where letter=?',
+                    (get_letter(str(payload.emoji), ))).fetchone()
+                role = discord.utils.get(guild.roles, name=entry[1])
+                if not role:
+                    logging.error(
+                        'User attempted to remove role %s which was not found, ignoring',
+                        entry[1])
+                    return
+                # playload.member doesn't work for remove
+                await self.bot.get_guild(payload.guild_id
+                                         ).get_member(payload.user_id
+                                                      ).remove_roles(role)
