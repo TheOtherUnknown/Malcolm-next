@@ -17,7 +17,7 @@ class Utils(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(name="ping")
+    @commands.command()
     async def ping(self, ctx):
         """Displays latency between client and bot"""
         latency = round(self.bot.latency * 1000, 2)
