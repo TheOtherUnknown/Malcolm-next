@@ -26,8 +26,8 @@ class Roles(commands.Cog):
         """Generates or updates the roles message and puts the content in the
         configured channel"""
         msg = 'React with one of the emotes below to be given the indicated vanity role:\n'
-        for role in self.cur.execute('SELECT * from roles'):
-            msg += f"* {role[1]} = {get_emoji(role[0])}\n"
+        for role in self.cur.execute('SELECT * from roles ORDER BY letter'):
+            msg += f"- {role[1]} {get_emoji(role[0])}\n"
         chan = self.bot.get_channel(int(self.bot.getConfig('Roles',
                                                            'Channel')))
         if chan is not None:  # There is a channel set, right?
@@ -35,7 +35,7 @@ class Roles(commands.Cog):
             try:
                 last_msg = await chan.fetch_message(
                     chan.last_message_id)  # Docs say to do it this way
-            except discord.NotFound:
+            except (discord.NotFound, discord.errors.HTTPException):
                 last_msg = None
             if last_msg is not None and last_msg.author == self.bot.user:
                 await last_msg.edit(content=msg)
