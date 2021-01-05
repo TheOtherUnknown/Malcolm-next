@@ -24,6 +24,12 @@ class Utils(commands.Cog):
         return await ctx.send('Pong! ' + str(latency) + 'ms')
 
     @commands.command()
+    async def rng(self, ctx, start, end):
+        """Returns a random number from the start and stop provided"""
+        num = random.randint(start, end)
+        return await ctx.send(f"Your random number is:{num}")
+
+    @commands.command()
     async def roll(self, ctx, roll='1d6'):
         """Rolls a dice"""
         embed = discord.Embed(title='Dice Rolls')
