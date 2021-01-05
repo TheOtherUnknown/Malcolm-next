@@ -17,7 +17,7 @@ class Help(commands.Cog):
             )
             help_embed.add_field(name="Trivia", value="An RA themed competivie trivia game, with a scoreboard.")
             help_embed.add_field(name="Utility", value="Utility Commands")
-            await ctx.send(embed=help_embed)
+            return await ctx.send(embed=help_embed)
 
         elif command == "trivia":
             trivia_embed = discord.Embed(
@@ -28,7 +28,7 @@ class Help(commands.Cog):
             trivia_embed.add_field(name="trivia start", value="Starts a new game in the current channel")
             trivia_embed.add_field(name="trivia stats", value="Returns your trivia win/loss statistics")
             trivia_embed.add_field(name='trivia top', value="Sends an embed with the top 5 ranked users in trivia")
-            await ctx.send(embed=trivia_embed)
+            return await ctx.send(embed=trivia_embed)
 
         elif command == 'utils':
             util_embed = discord.Embed(
@@ -42,3 +42,4 @@ class Help(commands.Cog):
             util_embed.add_field(name="roll", value="Rolls dice")
             util_embed.add_field(name="userinfo", value="Displays information abouyt users")
             util_embed.add_field(name="verify", value="Add yourself to the verified user role if the server, if you qualify.")
+            return await ctx.send(embed=util_embed)
