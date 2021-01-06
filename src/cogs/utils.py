@@ -17,6 +17,36 @@ class Utils(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
+    @commands.command(
+        brief='Convenient solutions to inconvenient tech problems')
+    async def bofh(self, ctx):
+        # https://stackoverflow.com/questions/14924721/how-to-choose-a-random-line-from-a-text-file#14924739
+        line_num = 0
+        selected = ''
+        with open('data/excuses.txt') as f:
+            while 1:
+                line = f.readline()
+                if not line:
+                    break
+                line_num += 1
+                if random.uniform(0, line_num) < 1:
+                    selected = line
+        await ctx.send(selected.strip())
+
+    @commands.command(brief='Information about the bot instance')
+    async def info(self, ctx):
+        commit = os.popen('git rev-parse --short HEAD').read().strip()
+        embed = discord.Embed(
+            title="Malcolm-Next",
+            url="https://github.com/TheOtherUnknown/Malcolm-next")
+        embed.add_field(name="Running Commit", value=commit,
+                        inline=False)  # What commit is running?
+        embed.add_field(name="Server count",
+                        value=(len(self.bot.guilds)),
+                        inline=False)
+        embed.add_field(name="Owner", value=self.bot.owner_id, inline=False)
+        await ctx.send(embed=embed)
+
     @commands.command()
     async def ping(self, ctx):
         """Displays latency between client and bot"""
@@ -55,34 +85,24 @@ class Utils(commands.Cog):
         embed.set_footer(text=f"Total: {total}")
         await ctx.send(embed=embed)
 
-    @commands.command(
-        brief='Convenient solutions to inconvenient tech problems')
-    async def bofh(self, ctx):
-        # https://stackoverflow.com/questions/14924721/how-to-choose-a-random-line-from-a-text-file#14924739
-        line_num = 0
-        selected = ''
-        with open('data/excuses.txt') as f:
-            while 1:
-                line = f.readline()
-                if not line:
-                    break
-                line_num += 1
-                if random.uniform(0, line_num) < 1:
-                    selected = line
-        await ctx.send(selected.strip())
-
-    @commands.command(brief='Information about the bot instance')
-    async def info(self, ctx):
-        commit = os.popen('git rev-parse --short HEAD').read().strip()
-        embed = discord.Embed(
-            title="Malcolm-Next",
-            url="https://github.com/TheOtherUnknown/Malcolm-next")
-        embed.add_field(name="Running Commit", value=commit,
-                        inline=False)  # What commit is running?
-        embed.add_field(name="Server Count",
-                        value=(len(self.bot.guilds)),
-                        inline=False)
-        embed.add_field(name="Owner", value=self.bot.owner_id, inline=False)
+    @commands.command(brief='Displays information about the server')
+    async def serverinfo(self, ctx):
+        embed = discord.Embed(title=ctx.guild.name)
+        if ctx.guild.description is not None:
+            embed.description = ctx.guild.description
+        embed.add_field(name='Region',
+                        value=str(ctx.guild.region),
+                        inline=True)
+        embed.add_field(name='Members',
+                        value=str(ctx.guild.member_count),
+                        inline=True)
+        embed.add_field(name='Owner', value=ctx.guild.owner.name, inline=True)
+        cdate = ctx.guild.created_at
+        embed.add_field(
+            name='Creation date',
+            value=f"{cdate.ctime()}, {(datetime.utcnow() - cdate).days} days ago")
+        embed.set_thumbnail(url=ctx.guild.icon_url)
+        embed.set_footer(text=f"ID: {ctx.guild.id}")
         await ctx.send(embed=embed)
 
     @commands.command(brief='Displays information about users')
@@ -99,14 +119,15 @@ class Utils(commands.Cog):
         embed = discord.Embed(title=str(user))
         embed.set_thumbnail(url=user.avatar_url)
         create = f"{user.created_at.ctime()}, {(datetime.utcnow() - user.created_at).days} days ago"
-        embed.add_field(name='Account Created', value=create, inline=False)
+        embed.add_field(name='Account created', value=create, inline=False)
         join = f"{user.joined_at.ctime()}, {(datetime.utcnow() - user.joined_at).days} days ago"
-        embed.add_field(name="Join Date", value=join, inline=False)
+        embed.add_field(name="Join date", value=join, inline=False)
         embed.add_field(name="Roles", value=role_list(user), inline=False)
-        embed.add_field(name="ID", value=user.id)
+        embed.set_footer(text=f"ID: {user.id}")
         await ctx.send(embed=embed)
 
-    @commands.command(brief='Add yourself to the verified user role in the server, if you qualify')
+    @commands.command(
+        brief='Add yourself to the verified user role in the server, if you qualify')
     async def verify(self, ctx):
         joindate = ctx.author.joined_at
         if datetime.utcnow() > (joindate + timedelta(days=1)):  # One day
