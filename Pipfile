@@ -4,11 +4,12 @@ url = "https://pypi.org/simple"
 verify_ssl = true
 
 [dev-packages]
+yapf = "*"
+flake8 = "*"
 
 [packages]
 "discord.py" = "*"
-flake8 = "*"
 python-levenshtein = "*"
 
 [requires]
-python_version = "3.8"
+python_version = "3.9"

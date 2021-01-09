@@ -65,8 +65,7 @@ bot = Malcolm(command_prefix=',', intents=intents, configpath=sys.argv[1])
 
 @bot.event
 async def on_ready():
-    print('Malcolm-next has started')
-    print('Invite URL here')
+    logging.info('Malcolm-next has started')
 
 
 bot.add_cog(JoinLeave(bot))

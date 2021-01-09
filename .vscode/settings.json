@@ -1,5 +1,5 @@
 {
-    "python.pythonPath": ".venv/bin/python",
+    "python.pythonPath": "/home/adam/.local/share/virtualenvs/Malcolm-next-EDaiGMpS/bin/python3",
     "python.formatting.provider": "yapf",
     "python.linting.enabled": true,
     "python.linting.flake8Enabled": true
