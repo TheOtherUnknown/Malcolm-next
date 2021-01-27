@@ -49,7 +49,7 @@ class Utils(commands.Cog):
 
     @commands.command()
     async def ping(self, ctx):
-        """The time it takes for disords servers to respond to Malcolm"""
+        """The time it takes for Discord's servers to respond to Malcolm"""
         latency = round(self.bot.latency * 1000, 2)
         return await ctx.send('Pong! ' + str(latency) + 'ms')
 
