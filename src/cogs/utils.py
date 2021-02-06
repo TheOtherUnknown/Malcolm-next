@@ -139,6 +139,21 @@ class Utils(commands.Cog):
                 'You don\'t qualify to be verified yet! Check back 24 hours after you join.'
             )
 
+    @commands.command()
+    async def time(self, ctx, tz):
+        format = "Time: %H:%M:%S | Date: %Y-%m-%d "
+        all_tz = []
+        for tz in pytz.all_timezones:
+            all_tz.append(tz)
+        if tz not in all_tz:
+            print("Please use a valid pytz timezone. (https://kevinnovak.github.io/Time-Zone-Picker/)")
+        elif tz in all_tz:
+            # Current time in UTC
+            now_utc = datetime.now(pytz.timezone('UTC'))
+            now = now_utc.astimezone(pytz.timezone(tz))
+            now = now.strftime(format)
+            await ctx.send(f"The time in {tz} is currently: {now}")
+            
     # == START MOD COMMANDS == #
     @commands.command(brief='Bans a user from the server', usage='@someone')
     @commands.has_permissions(ban_members=True)
