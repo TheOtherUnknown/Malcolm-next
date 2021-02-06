@@ -6,6 +6,8 @@ import pytz
 # Helper methods
 # Gets the user's roles, converts them to strings, and makes a comma seperated list out of them.
 # Ignore @everyone if they have other roles
+
+
 def role_list(user):
     roles = list(map(str, user.roles))
     if len(roles) != 1:
