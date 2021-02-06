@@ -153,7 +153,7 @@ class Utils(commands.Cog):
             now = now_utc.astimezone(pytz.timezone(tz))
             now = now.strftime(format)
             await ctx.send(f"The time in {tz} is currently: {now}")
-            
+
     # == START MOD COMMANDS == #
     @commands.command(brief='Bans a user from the server', usage='@someone')
     @commands.has_permissions(ban_members=True)
