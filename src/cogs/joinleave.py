@@ -16,11 +16,11 @@ class JoinLeave(commands.Cog):
     async def on_member_join(self, member):
         channel = member.guild.system_channel
         if channel is not None:
-            await channel.send('{0.mention} has joined. {1}'.format(
-                member, random.choice(join_msgs)))
+            await channel.send(
+                f'{member.mention} has joined. {random.choice(join_msgs)}')
 
     @commands.Cog.listener()
     async def on_member_remove(self, member):
         channel = member.guild.system_channel
         if channel is not None:
-            await channel.send('{0} has left the server'.format(member))
+            await channel.send(f'{member} has left the server')

@@ -1,4 +1,4 @@
-from typing import Tuple
+from typing import Tuple, Dict
 from discord.ext import commands
 import discord
 from asyncio import sleep, TimeoutError
@@ -14,7 +14,8 @@ class Trivia(commands.Cog):
         self.cur = cur
 
     # Helper methods
-    def check_winner(self, scores: dict[int, int], goal):
+    # Dict[int,int] Is replaced in 3.8
+    def check_winner(self, scores: Dict[int, int], goal):
         """Is there a player in scores dict with a score of goal? If so,
         return a tuple. Else None"""
         for player, score in scores.items():
@@ -60,8 +61,8 @@ class Trivia(commands.Cog):
         # Ensure someone is not trying to start two games in the same channel
         if ctx.channel.id not in locked_channels:
             locked_channels.append(ctx.channel.id)
-            await ctx.send(
-                'Starting trivia. The first to {} points wins!'.format(goal))
+            await ctx.send(f'Starting trivia. The first to {goal} points wins!'
+                           )
             play = True
             scores = {}
 
@@ -97,8 +98,8 @@ class Trivia(commands.Cog):
                     else:
                         scores[resp.author.id] = 1
                 else:  # Someone got the question wrong
-                    await ctx.send('Nope! The correct answer was {}'.format(
-                        question[1]))
+                    await ctx.send(
+                        f'Nope! The correct answer was {question[1]}')
                     # Even if they miss it, losses needed to be counted
                     if resp.author.id not in scores.keys():
                         scores[resp.author.id] = 0
