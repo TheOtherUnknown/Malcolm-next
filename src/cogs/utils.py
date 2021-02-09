@@ -1,6 +1,6 @@
 import discord, os, asyncio, random
 from discord.ext import commands
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 import pytz
 
 # Helper methods
@@ -141,20 +141,100 @@ class Utils(commands.Cog):
                 'You don\'t qualify to be verified yet! Check back 24 hours after you join.'
             )
 
-    @commands.command()
-    async def time(self, ctx, tz):
-        format = "Time: %H:%M:%S | Date: %Y-%m-%d "
-        all_tz = []
-        for tz in pytz.all_timezones:
-            all_tz.append(tz)
-        if tz not in all_tz:
-            print("Please use a valid pytz timezone. (https://kevinnovak.github.io/Time-Zone-Picker/)")
-        elif tz in all_tz:
-            # Current time in UTC
-            now_utc = datetime.now(pytz.timezone('UTC'))
-            now = now_utc.astimezone(pytz.timezone(tz))
-            now = now.strftime(format)
-            await ctx.send(f"The time in {tz} is currently: {now}")
+    @commands.command(
+        brief='Convert time from one timezone to another',
+        usage=',time [time] [original timezone] [timezone to convert too]'
+        )
+    async def time(self, ctx, times, og_tz, new_tz):
+        """
+        Convert time from one timezone to another
+        """
+        h, m = times.split(':')  # Get the hour and minutes from the provided time
+        y, m_, d = str(date.today()).split('-')  # Get the year, month, and date for use in the datetime.datetime object
+
+        # Make the timezones uppercase for use in the convert_tz function
+        og_tz = og_tz.upper()
+        new_tz = new_tz.upper()
+
+        def convert_tz(timezone):
+            # Convert the user given timezone into a valid pytz timezone
+            if timezone == 'EST':
+                timezone = 'America/New_York'
+            elif timezone == 'CET':
+                timezone = 'Europe/London'
+            elif timezone == 'EET':
+                timezone = 'Europe/Amsterdam'
+            elif timezone == 'MSK':
+                timezone = 'Europe/Moscow'
+            elif timezone == 'AMT':
+                timezone = 'Asia/Dubai'
+            elif timezone == 'PKT':
+                timezone = 'Indian/Maldives'
+            elif timezone == 'OMSK':
+                timezone = 'Indian/Chagos'
+            elif timezone == 'KRAT':
+                timezone = 'Asia/Bangkok'
+            elif timezone == 'CST':
+                timezone = 'Asia/Chongqing'
+            elif timezone == 'JST':
+                timezone = 'Asia/Tokyo'
+            elif timezone == 'AEST':
+                timezone = 'Australia/Queensland'
+            elif timezone == 'SAKT':
+                timezone = 'Pacific/Ponape'
+            elif timezone == 'NZST':
+                timezone = 'Pacific/Fiji'
+            elif timezone == 'IDLW':
+                timezone = 'Etc/GMT+12'
+            elif timezone == 'NT':
+                timezone = 'US/Samoa'
+            elif timezone == 'HST':
+                timezone = 'Pacific/Honolulu'
+            elif timezone == 'AKST':
+                timezone = 'America/Adak'
+            elif timezone == 'PST':
+                timezone = 'America/Nome'
+            elif timezone == 'MST':
+                timezone = 'America/Los_Angeles'
+            elif timezone == 'CST':
+                timezone = 'America/Denver'
+            elif timezone == 'AST':
+                timezone = 'America/Aruba'
+            elif timezone == 'ART':
+                timezone = 'America/Belem'
+            elif timezone == 'AT':
+                timezone = 'America/Godthab'
+            elif timezone == 'WAT':
+                timezone = 'Atlantic/Cape_Verde'
+            elif timezone == 'GMT' or 'UTC':
+                timezone = 'Universal'
+
+            return timezone
+
+        # Use the function on the user provided timezones
+        og_tzs = convert_tz(og_tz)
+        new_tzs = convert_tz(new_tz)
+
+        # Get the current time and date (We do this because you cannot call `.astimezone()` on datetime.time)
+        local = datetime(int(y), int(m_), int(d), int(h), int(m))
+
+        # Take the current time and make change it into the original timezone, then convert it to the new timezone
+        nonLocal = pytz.timezone(og_tzs).localize(local).astimezone(pytz.timezone(new_tzs))
+
+        # Shave off the date and milliseconds as we dont need it
+        nonLocal = str(nonLocal).split(" ")
+        nonLocal = nonLocal[1]
+        nonLocal = nonLocal.split(".")
+        nonLocal = nonLocal[0]
+        nonLocal = nonLocal.split("+")
+        nonLocal = nonLocal[0]
+
+        local = str(local).split(" ")
+        local = local[1]
+        local = local.split(".")
+        local = local[0]
+
+        await ctx.send(f"{local} in {og_tz}({og_tzs}) is {nonLocal} in {new_tz}({new_tzs})")
 
     # == START MOD COMMANDS == #
     @commands.command(brief='Bans a user from the server', usage='@someone')
