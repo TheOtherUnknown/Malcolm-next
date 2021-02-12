@@ -139,6 +139,48 @@ class Utils(commands.Cog):
                 'You don\'t qualify to be verified yet! Check back 24 hours after you join.'
             )
 
+    @commands.command(brief='Create polls using embeds and reactions')
+    async def poll(self, ctx, question, *args):
+        # Curernt max amount of answers is 9 as there are only 9 digit reactions
+        
+        """
+        Create embed polls with one question and up to 9 responses. 
+        """
+        user = ctx.author # Get the author for the footer of the embed
+
+        embed = discord.Embed(title=f"**__{question}__**") # Set the title of the embed as the question provided 
+        embed.set_thumbnail(url=user.avatar_url) # Set the thumbnail as the authors discord profile picture
+        embed.set_author(name=user) # Set the author of the embed as the person who sent the command
+        
+        # Initalize two variables for list comprehension
+        y = 0
+        z = 0
+
+        opts = [] # Use a list to store all the possible options or answers
+        reactions = ['1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣'] # A list of all the reactions that could be added
+
+        # For every possible answer provided appened it to the list for answers
+        for arg in args:
+            opts.append(arg)
+        try:
+            # List comprehension for the possible answers
+            for x in opts:
+                y += 1
+                embed.add_field(name=str(y), value=x)
+                
+                if y == 9: #If we reach the max amount of choices (9) break the loop
+                    break
+
+            msg = await ctx.send(embed=embed) # Send the embed
+
+            # List comprehension for the reactions
+            for x in opts:
+                await msg.add_reaction(reactions[z])
+                z += 1
+
+        except len(opts) > 9:
+            await ctx.send("**WARNING: You have provided more than nine choices; therefore, only the first nine were included in the poll.**")
+
     # == START MOD COMMANDS == #
     @commands.command(brief='Bans a user from the server', usage='@someone')
     @commands.has_permissions(ban_members=True)
