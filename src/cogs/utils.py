@@ -138,8 +138,11 @@ class Utils(commands.Cog):
             await ctx.send(
                 'You don\'t qualify to be verified yet! Check back 24 hours after you join.'
             )
-
+    
+    # == START MOD COMMANDS == #
+    
     @commands.command(brief='Create polls using embeds and reactions')
+    @commands.has_any_role('Mods', 616448412057075768) # Only people with the role of Mods can use this command
     async def poll(self, ctx, question, *args):
         # Curernt max amount of answers is 9 as there are only 9 digit reactions
         
@@ -181,7 +184,7 @@ class Utils(commands.Cog):
         except len(opts) > 9:
             await ctx.send("**WARNING: You have provided more than nine choices; therefore, only the first nine were included in the poll.**")
 
-    # == START MOD COMMANDS == #
+    
     @commands.command(brief='Bans a user from the server', usage='@someone')
     @commands.has_permissions(ban_members=True)
     async def kb(self, ctx):
