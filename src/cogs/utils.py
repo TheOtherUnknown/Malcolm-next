@@ -149,6 +149,9 @@ class Utils(commands.Cog):
         """
         Convert time from one timezone to another
         """
+
+        formate = "%H:%M:%S"
+
         h, m = times.split(':')  # Get the hour and minutes from the provided time
         y, m_, d = str(date.today()).split('-')  # Get the year, month, and date for use in the datetime.datetime object
 
@@ -221,18 +224,9 @@ class Utils(commands.Cog):
         # Take the current time and make change it into the original timezone, then convert it to the new timezone
         nonLocal = pytz.timezone(og_tzs).localize(local).astimezone(pytz.timezone(new_tzs))
 
-        # Shave off the date and milliseconds as we dont need it
-        nonLocal = str(nonLocal).split(" ")
-        nonLocal = nonLocal[1]
-        nonLocal = nonLocal.split(".")
-        nonLocal = nonLocal[0]
-        nonLocal = nonLocal.split("+")
-        nonLocal = nonLocal[0]
-
-        local = str(local).split(" ")
-        local = local[1]
-        local = local.split(".")
-        local = local[0]
+        # Apply formatting to our times so we dont get the date and milliseconds
+        nonLocal = nonLocal.strftime(formate)
+        local = local.strftime(formate)
 
         await ctx.send(f"{local} in {og_tz}({og_tzs}) is {nonLocal} in {new_tz}({new_tzs})")
 
