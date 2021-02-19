@@ -2,19 +2,6 @@ from discord.ext import commands
 import discord, logging
 
 
-def get_emoji(letter: str) -> str:
-    """Return a letter emoji representing the given capital letter"""
-    letter = ord(letter)
-    # 127462 is the A emoji
-    return chr(127462 + (letter - 65))
-
-
-def get_letter(emoji: str) -> str:
-    """Return a letter representing the given letter emoji"""
-    emoji = ord(emoji)
-    return chr(emoji - 127397)
-
-
 class Roles(commands.Cog):
     def __init__(self, bot, db, cur):
         self.bot = bot
@@ -26,8 +13,9 @@ class Roles(commands.Cog):
         """Generates or updates the roles message and puts the content in the
         configured channel"""
         msg = 'React with one of the emotes below to be given the indicated vanity role:\n'
-        for role in self.cur.execute('SELECT * from roles ORDER BY letter'):
-            msg += f"- {role[1]} {get_emoji(role[0])}\n"
+        for role in self.cur.execute(
+                'SELECT name, emoji from roles ORDER BY name'):
+            msg += f"{self.bot.get_emoji(role[1])} - `{role[0]}`\n"  # EMOJI - `ROLENAME`
         chan = self.bot.get_channel(int(self.bot.getConfig('Roles',
                                                            'channel')))
         if chan is not None:  # There is a channel set, right?
@@ -53,23 +41,21 @@ class Roles(commands.Cog):
         await self.send_message()
         await ctx.send('Channel set!')
 
-    @commands.command(usage='LETTER @somerole')
+    @commands.command(usage='DEFAULT EMOJI @somerole')
     @commands.has_permissions(manage_roles=True)
-    async def roleset(self, ctx, letter):
-        """Assigns a letter to a role"""
-        code = ord(letter.upper())
+    async def roleset(self, ctx, emoji, role: discord.Role):
+        """Assigns an emoji to a role"""
+        rolechan = self.bot.getConfig('Roles', 'Channel')
         # A message can only have 20 reacts, so limit to the first 20 letters
-        if code < 64 or code > 84:
-            await ctx.send('That\'s not a valid letter, Try A-S')
-            return
-        role = ctx.message.role_mentions[0]
-        if not role.hoist:
+        if not rolechan or self.cur.execute(
+                'SELECT Count(*) FROM roles').fetchone()[0] > 19:
             await ctx.send(
-                'That role isn\'t hoisted, not much point in assigning it...')
+                'The role channel does not exist, or has too many roles!')
             return
-        self.cur.execute('DELETE FROM roles WHERE letter=?', (letter, ))
-        self.cur.execute('INSERT INTO roles (letter, name) VALUES (?,?)',
-                         (letter, role.name))
+            # Insert, or replace if it already exists
+        self.cur.execute(
+            'INSERT INTO roles VALUES(?,?) ON CONFLICT(name, emoji) DO UPDATE name=excluded.name, emoji=excluded.emoji',
+            (role.name, emoji.id))
         self.db.commit()
         await self.send_message()
         await ctx.send('Role set!')
@@ -83,8 +69,9 @@ class Roles(commands.Cog):
             # Is it the last message in the channel?
             if payload.message_id == channel.last_message_id:
                 entry = self.cur.execute(
-                    'SELECT * FROM roles where letter=?',
-                    (get_letter(str(payload.emoji), ))).fetchone()
+                    'SELECT * FROM roles where emoji=?',
+                    (payload.emoji.id),
+                ).fetchone()
                 role = discord.utils.get(guild.roles, name=entry[1])
                 if not role:
                     logging.error(
@@ -102,8 +89,9 @@ class Roles(commands.Cog):
             # Is it the last message in the channel?
             if payload.message_id == channel.last_message_id:
                 entry = self.cur.execute(
-                    'SELECT * FROM roles where letter=?',
-                    (get_letter(str(payload.emoji), ))).fetchone()
+                    'SELECT * FROM roles where emoji=?',
+                    (payload.emoji.id),
+                ).fetchone()
                 role = discord.utils.get(guild.roles, name=entry[1])
                 if not role:
                     logging.error(
