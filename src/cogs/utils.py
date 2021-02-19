@@ -143,8 +143,7 @@ class Utils(commands.Cog):
 
     @commands.command(
         brief='Convert time from one timezone to another',
-        usage=',time [time] [original timezone] [timezone to convert too]'
-        )
+        usage=',time [time] [original timezone] [timezone to convert too]')
     async def time(self, ctx, times, og_tz, new_tz):
         """
         Convert time from one timezone to another
@@ -152,8 +151,11 @@ class Utils(commands.Cog):
 
         formate = "%H:%M:%S"
 
-        h, m = times.split(':')  # Get the hour and minutes from the provided time
-        y, m_, d = str(date.today()).split('-')  # Get the year, month, and date for use in the datetime.datetime object
+        h, m = times.split(
+            ':')  # Get the hour and minutes from the provided time
+        y, m_, d = str(date.today()).split(
+            '-'
+        )  # Get the year, month, and date for use in the datetime.datetime object
 
         # Make the timezones uppercase for use in the convert_tz function
         og_tz = og_tz.upper()
@@ -177,8 +179,6 @@ class Utils(commands.Cog):
                 timezone = 'Indian/Chagos'
             elif timezone == 'KRAT':
                 timezone = 'Asia/Bangkok'
-            elif timezone == 'CST':
-                timezone = 'Asia/Chongqing'
             elif timezone == 'JST':
                 timezone = 'Asia/Tokyo'
             elif timezone == 'AEST':
@@ -209,7 +209,7 @@ class Utils(commands.Cog):
                 timezone = 'America/Godthab'
             elif timezone == 'WAT':
                 timezone = 'Atlantic/Cape_Verde'
-            elif timezone == 'GMT' or 'UTC':
+            elif timezone == 'GMT' or timezone == 'UTC':
                 timezone = 'Universal'
 
             return timezone
@@ -222,13 +222,16 @@ class Utils(commands.Cog):
         local = datetime(int(y), int(m_), int(d), int(h), int(m))
 
         # Take the current time and make change it into the original timezone, then convert it to the new timezone
-        nonLocal = pytz.timezone(og_tzs).localize(local).astimezone(pytz.timezone(new_tzs))
+        non_local = pytz.timezone(og_tzs).localize(local).astimezone(
+            pytz.timezone(new_tzs))
 
         # Apply formatting to our times so we dont get the date and milliseconds
-        nonLocal = nonLocal.strftime(formate)
+        non_local = non_local.strftime(formate)
         local = local.strftime(formate)
 
-        await ctx.send(f"{local} in {og_tz}({og_tzs}) is {nonLocal} in {new_tz}({new_tzs})")
+        await ctx.send(
+            f"{local} in {og_tz}({og_tzs}) is {non_local} in {new_tz}({new_tzs})"
+        )
 
     # == START MOD COMMANDS == #
     @commands.command(brief='Bans a user from the server', usage='@someone')
