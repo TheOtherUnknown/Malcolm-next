@@ -142,13 +142,17 @@ class Utils(commands.Cog):
     # == START MOD COMMANDS == #
     
     @commands.command(brief='Create polls using embeds and reactions')
-    @commands.has_any_role('Mods', 616448412057075768) # Only people with the role of Mods can use this command
+    #@commands.has_any_role('Mods', 616448412057075768) # Only people with the role of Mods can use this command
     async def poll(self, ctx, question, *args):
-        # Curernt max amount of answers is 9 as there are only 9 digit reactions
-        
         """
         Create embed polls with one question and up to 9 responses. 
-        """
+        """        
+        # Curernt max amount of answers is 9 as there are only 9 digit reactions
+        
+        # Define a custom exception that inherits from the base exception
+        class tooLong(Exception):
+            pass        
+
         user = ctx.author # Get the author for the footer of the embed
 
         embed = discord.Embed(title=f"**__{question}__**") # Set the title of the embed as the question provided 
@@ -165,7 +169,13 @@ class Utils(commands.Cog):
         # For every possible answer provided appened it to the list for answers
         for arg in args:
             opts.append(arg)
+
+        
         try:
+            # Check how many answers the user provided. If they provided more than 9, raise an exception
+            if len(opts) > 9:
+                raise tooLong
+        
             # List comprehension for the possible answers
             for x in opts:
                 y += 1
@@ -181,8 +191,8 @@ class Utils(commands.Cog):
                 await msg.add_reaction(reactions[z])
                 z += 1
 
-        except len(opts) > 9:
-            await ctx.send("**WARNING: You have provided more than nine choices; therefore, only the first nine were included in the poll.**")
+        except Exception:
+            await ctx.send("**WARNING: You have provided more than nine choices; therefore, the poll was not sent**")
 
     
     @commands.command(brief='Bans a user from the server', usage='@someone')
