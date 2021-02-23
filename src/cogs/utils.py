@@ -143,13 +143,13 @@ class Utils(commands.Cog):
 
     @commands.command(
         brief='Convert time from one timezone to another',
-        usage=',time [time] [original timezone] [timezone to convert too]')
-    async def time(self, ctx, times, og_tz, new_tz):
+        usage='[time] [original timezone] [timezone to convert too]')
+    async def time(self, ctx, times, period, og_tz, new_tz):
         """
         Convert time from one timezone to another
         """
 
-        formate = "%H:%M:%S"
+        formate = "%I:%M:%S %p"
 
         h, m = times.split(
             ':')  # Get the hour and minutes from the provided time
@@ -158,80 +158,88 @@ class Utils(commands.Cog):
         )  # Get the year, month, and date for use in the datetime.datetime object
 
         # Make the timezones uppercase for use in the convert_tz function
-        og_tz = og_tz.upper()
-        new_tz = new_tz.upper()
+        try:
+            og_tz = og_tz.upper()
+            new_tz = new_tz.upper()
 
-        def convert_tz(timezone):
-            # Convert the user given timezone into a valid pytz timezone
-            if timezone == 'EST':
-                timezone = 'America/New_York'
-            elif timezone == 'CET':
-                timezone = 'Europe/London'
-            elif timezone == 'EET':
-                timezone = 'Europe/Amsterdam'
-            elif timezone == 'MSK':
-                timezone = 'Europe/Moscow'
-            elif timezone == 'AMT':
-                timezone = 'Asia/Dubai'
-            elif timezone == 'PKT':
-                timezone = 'Indian/Maldives'
-            elif timezone == 'OMSK':
-                timezone = 'Indian/Chagos'
-            elif timezone == 'KRAT':
-                timezone = 'Asia/Bangkok'
-            elif timezone == 'JST':
-                timezone = 'Asia/Tokyo'
-            elif timezone == 'AEST':
-                timezone = 'Australia/Queensland'
-            elif timezone == 'SAKT':
-                timezone = 'Pacific/Ponape'
-            elif timezone == 'NZST':
-                timezone = 'Pacific/Fiji'
-            elif timezone == 'IDLW':
-                timezone = 'Etc/GMT+12'
-            elif timezone == 'NT':
-                timezone = 'US/Samoa'
-            elif timezone == 'HST':
-                timezone = 'Pacific/Honolulu'
-            elif timezone == 'AKST':
-                timezone = 'America/Adak'
-            elif timezone == 'PST':
-                timezone = 'America/Nome'
-            elif timezone == 'MST':
-                timezone = 'America/Los_Angeles'
-            elif timezone == 'CST':
-                timezone = 'America/Denver'
-            elif timezone == 'AST':
-                timezone = 'America/Aruba'
-            elif timezone == 'ART':
-                timezone = 'America/Belem'
-            elif timezone == 'AT':
-                timezone = 'America/Godthab'
-            elif timezone == 'WAT':
-                timezone = 'Atlantic/Cape_Verde'
-            elif timezone == 'GMT' or timezone == 'UTC':
-                timezone = 'Universal'
+            def convert_tz(timezone):
+                # Convert the user given timezone into a valid pytz timezone
+                if timezone == 'EST':
+                    timezone = 'America/New_York'
+                elif timezone == 'CET':
+                    timezone = 'Europe/London'
+                elif timezone == 'EET':
+                    timezone = 'Europe/Amsterdam'
+                elif timezone == 'MSK':
+                    timezone = 'Europe/Moscow'
+                elif timezone == 'AMT':
+                    timezone = 'Asia/Dubai'
+                elif timezone == 'PKT':
+                    timezone = 'Indian/Maldives'
+                elif timezone == 'OMSK':
+                    timezone = 'Indian/Chagos'
+                elif timezone == 'KRAT':
+                    timezone = 'Asia/Bangkok'
+                elif timezone == 'JST':
+                    timezone = 'Asia/Tokyo'
+                elif timezone == 'AEST':
+                    timezone = 'Australia/Queensland'
+                elif timezone == 'SAKT':
+                    timezone = 'Pacific/Ponape'
+                elif timezone == 'NZST':
+                    timezone = 'Pacific/Fiji'
+                elif timezone == 'IDLW':
+                    timezone = 'Etc/GMT+12'
+                elif timezone == 'NT':
+                    timezone = 'US/Samoa'
+                elif timezone == 'HST':
+                    timezone = 'Pacific/Honolulu'
+                elif timezone == 'AKST':
+                    timezone = 'America/Adak'
+                elif timezone == 'PST':
+                    timezone = 'America/Nome'
+                elif timezone == 'MST':
+                    timezone = 'America/Los_Angeles'
+                elif timezone == 'CST':
+                    timezone = 'America/Denver'
+                elif timezone == 'AST':
+                    timezone = 'America/Aruba'
+                elif timezone == 'ART':
+                    timezone = 'America/Belem'
+                elif timezone == 'AT':
+                    timezone = 'America/Godthab'
+                elif timezone == 'WAT':
+                    timezone = 'Atlantic/Cape_Verde'
+                elif timezone == 'GMT' or timezone == 'UTC':
+                    timezone = 'Universal'
 
-            return timezone
+                return timezone
 
-        # Use the function on the user provided timezones
-        og_tzs = convert_tz(og_tz)
-        new_tzs = convert_tz(new_tz)
+            # If the user is passing in PM as an arugment then convert it to 24hr format by adding 12 to it
+            # If the user is passing in AM as an arugment do nothing as it would already be in 12hr format
+            if period.lower() == 'pm':
+                h = int(h) + 12
 
-        # Get the current time and date (We do this because you cannot call `.astimezone()` on datetime.time)
-        local = datetime(int(y), int(m_), int(d), int(h), int(m))
+            # Use the function on the user provided timezones
+            og_tzs = convert_tz(og_tz)
+            new_tzs = convert_tz(new_tz)
 
-        # Take the current time and make change it into the original timezone, then convert it to the new timezone
-        non_local = pytz.timezone(og_tzs).localize(local).astimezone(
-            pytz.timezone(new_tzs))
+            # Get the current time and date (We do this because you cannot call `.astimezone()` on datetime.time)
+            local = datetime(int(y), int(m_), int(d), int(h), int(m))
 
-        # Apply formatting to our times so we dont get the date and milliseconds
-        non_local = non_local.strftime(formate)
-        local = local.strftime(formate)
+            # Take the current time and make change it into the original timezone, then convert it to the new timezone
+            non_local = pytz.timezone(og_tzs).localize(local).astimezone(
+                pytz.timezone(new_tzs))
 
-        await ctx.send(
-            f"{local} in {og_tz}({og_tzs}) is {non_local} in {new_tz}({new_tzs})"
-        )
+            # Apply formatting to our times so we dont get the date and milliseconds
+            non_local = non_local.strftime(formate)
+            local = local.strftime(formate)
+
+            await ctx.send(
+                f"{local} in {og_tz}({og_tzs}) is {non_local} in {new_tz}({new_tzs})"
+            )
+        except Exception:
+            await ctx.send('Sorry didn\'t understand that. For formatting see `,help time`')
 
     # == START MOD COMMANDS == #
     @commands.command(brief='Bans a user from the server', usage='@someone')
