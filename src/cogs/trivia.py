@@ -55,12 +55,15 @@ class Trivia(commands.Cog):
         if ctx.invoked_subcommand is None:
             await ctx.send('Trivia what? Use `,trivia start|top|stats`')
 
-    @trivia.command()
+    @trivia.command(usage="[points]")
     async def start(self, ctx, goal=5):
-        """Starts a new trivia game in the current channel"""
+        """Starts a new trivia game in the current channel with a minimum of 5 questions, max 50"""
         # Ensure someone is not trying to start two games in the same channel
         if ctx.channel.id not in locked_channels:
             locked_channels.append(ctx.channel.id)
+            # Let's not go overboard
+            if goal < 5 or goal > 50:
+                goal = 5
             await ctx.send(f'Starting trivia. The first to {goal} points wins!'
                            )
             play = True
