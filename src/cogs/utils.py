@@ -141,7 +141,8 @@ class Utils(commands.Cog):
 
     # == START MOD COMMANDS == #
 
-    @commands.command(brief='Create polls using embeds and reactions')
+    @commands.command(
+        brief='Create polls using embeds and reactions', usage="\"question\" \"answers 1-9" ")
     @commands.has_any_role('Mods', 616448412057075768)  # Only people with the role of Mods can use this command
     async def poll(self, ctx, question, *args):
         """
@@ -160,7 +161,6 @@ class Utils(commands.Cog):
         embed.set_thumbnail(url=user.avatar_url)  # Set the thumbnail as the authors discord profile picture
         embed.set_author(name=user)  # Set the author of the embed as the person who sent the command
 
-        # Initalize two variables for list comprehension
         for i, j in enumerate(args):
             i += 1
             embed.add_field(name=str(i), value=str(j))
