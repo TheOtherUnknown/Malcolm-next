@@ -149,9 +149,10 @@ class Utils(commands.Cog):
         """
         # Curernt max amount of answers is 9 as there are only 9 digit reactions
 
-        # Define a custom exception that inherits from the base exception
-        class tooLong(Exception):
-            pass
+        if len(args) > 9:
+            return await ctx.send("You have provided more than nine choices; therefore, the poll was not sent")
+
+        reactions = ['1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣']  # A list of all the reactions that could be added
 
         user = ctx.author  # Get the author for the footer of the embed
 
@@ -160,36 +161,14 @@ class Utils(commands.Cog):
         embed.set_author(name=user)  # Set the author of the embed as the person who sent the command
 
         # Initalize two variables for list comprehension
-        y = 0
-        z = 0
+        for i, j in enumerate(args):
+            i += 1
+            embed.add_field(name=str(i), value=str(j))
 
-        opts = []  # Use a list to store all the possible options or answers
-        reactions = ['1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣']  # A list of all the reactions that could be added
+        msg = await ctx.send(embed=embed)
 
-        # For every possible answer provided appened it to the list for answers
-        for arg in args:
-            opts.append(arg)
-
-        try:
-            # Check how many answers the user provided. If they provided more than 9, raise an exception
-            if len(opts) > 9:
-                raise tooLong
-
-            for x in opts:  # List comprehension for the possible answers
-                y += 1
-                embed.add_field(name=str(y), value=x)
-
-                if y == 9:  # If we reach the max amount of choices (9) break the loop
-                    break
-
-            msg = await ctx.send(embed=embed)  # Send the embed
-
-            for x in opts:  # List comprehension for the reactions
-                await msg.add_reaction(reactions[z])
-                z += 1
-
-        except Exception:
-            await ctx.send("**WARNING: You have provided more than nine choices; therefore, the poll was not sent**")
+        for x in range(len(args)):
+            await msg.add_reaction(reactions[x])
 
     @commands.command(brief='Bans a user from the server', usage='@someone')
     @commands.has_permissions(ban_members=True)
