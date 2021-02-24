@@ -162,7 +162,6 @@ class Utils(commands.Cog):
         embed.set_author(name=user)  # Set the author of the embed as the person who sent the command
 
         for i, j in enumerate(args, 1):
-            i += 1
             embed.add_field(name=str(i), value=str(j))
 
         msg = await ctx.send(embed=embed)
