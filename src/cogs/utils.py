@@ -140,6 +140,35 @@ class Utils(commands.Cog):
             )
 
     # == START MOD COMMANDS == #
+
+    @commands.command(
+        brief='Create polls using embeds and reactions', usage="\"question\" \"answers 1-9\"")
+    @commands.has_any_role('Mods', 616448412057075768)  # Only people with the role of Mods can use this command
+    async def poll(self, ctx, question, *args):
+        """
+        Create embed polls with one question and up to 9 responses.
+        """
+        # Curernt max amount of answers is 9 as there are only 9 digit reactions
+
+        if len(args) > 9:
+            return await ctx.send("You have provided more than nine choices; therefore, the poll was not sent")
+
+        reactions = ['1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣']  # A list of all the reactions that could be added
+
+        user = ctx.author  # Get the author for the footer of the embed
+
+        embed = discord.Embed(title=f"**__{question}__**")  # Set the title of the embed as the question provided
+        embed.set_thumbnail(url=user.avatar_url)  # Set the thumbnail as the authors discord profile picture
+        embed.set_author(name=user)  # Set the author of the embed as the person who sent the command
+
+        for i, j in enumerate(args, 1):
+            embed.add_field(name=str(i), value=str(j))
+
+        msg = await ctx.send(embed=embed)
+
+        for x in range(len(args)):
+            await msg.add_reaction(reactions[x])
+
     @commands.command(brief='Bans a user from the server', usage='@someone')
     @commands.has_permissions(ban_members=True)
     async def kb(self, ctx):
