@@ -142,7 +142,7 @@ class Utils(commands.Cog):
     # == START MOD COMMANDS == #
 
     @commands.command(
-        brief='Create polls using embeds and reactions', usage="\"question\" \"answers 1-9")
+        brief='Create polls using embeds and reactions', usage="\"question\" \"answers 1-9\"")
     @commands.has_any_role('Mods', 616448412057075768)  # Only people with the role of Mods can use this command
     async def poll(self, ctx, question, *args):
         """
