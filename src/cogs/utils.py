@@ -189,7 +189,7 @@ class Utils(commands.Cog):
                 z += 1
 
         except Exception:
-            await ctx.send("**WARNING: You have provided more than nine choices; therefore, the poll was not sent**")
+            await ctx.send("You have provided more than nine choices; therefore, the poll was not sent")
 
     @commands.command(brief='Bans a user from the server', usage='@someone')
     @commands.has_permissions(ban_members=True)
