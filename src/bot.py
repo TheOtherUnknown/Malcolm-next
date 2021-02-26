@@ -6,7 +6,7 @@ from cogs.joinleave import JoinLeave
 from cogs.roles import Roles
 from cogs.utils import Utils
 from cogs.trivia import Trivia
-
+from cogs.helper import Help
 
 class Malcolm(commands.Bot):
     """An extension of discord.ext.commands.Bot with configuration
@@ -14,14 +14,12 @@ class Malcolm(commands.Bot):
     def __init__(self,
                  command_prefix,
                  configpath: str,
-                 help_command=commands.DefaultHelpCommand(),
                  description=None,
                  **options):
         self.configpath = configpath
         self.config = configparser.ConfigParser()
         self.config.read(configpath)
         super().__init__(command_prefix,
-                         help_command=help_command,
                          description=description,
                          **options)
 
@@ -72,5 +70,7 @@ bot.add_cog(JoinLeave(bot))
 bot.add_cog(Trivia(bot, db, cur))
 bot.add_cog(Utils(bot))
 bot.add_cog(Roles(bot, db, cur))
+
+bot.help_command = Help()
 
 bot.run()
