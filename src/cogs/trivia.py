@@ -5,7 +5,7 @@ from asyncio import sleep, TimeoutError
 from Levenshtein import ratio
 
 locked_channels = []  # Channel IDs that are currently in use by a game
-
+avaible_channels = ['553637881135235102', '794648440004673537']
 questions = []  # Questions that have been sent
 
 
@@ -61,7 +61,7 @@ class Trivia(commands.Cog):
     async def start(self, ctx, goal=5):
         """Starts a new trivia game in the current channel with a minimum of 5 questions, max 50"""
         # Ensure someone is not trying to start two games in the same channel
-        if ctx.channel.id not in locked_channels:
+        if ctx.channel.id not in locked_channels and ctx.channel.id in avaible_channels:
             locked_channels.append(ctx.channel.id)
             # Let's not go overboard
             if goal < 5 or goal > 50:
@@ -119,6 +119,12 @@ class Trivia(commands.Cog):
                 else:
                     if len(questions) > 100:  # If the question has been sent just check to see that the list isn't too big
                         questions[:] = []  # If it is, clean the list
+        else:
+            if ctx.channel.id not in avaible_channels:
+                return await ctx.send("This isn't a valid trivia channel!")
+
+            elif ctx.channel.id in locked_channels:
+                return await ctx.send("There is already a game in this channel!")
 
     @trivia.command()
     async def top(self, ctx):
