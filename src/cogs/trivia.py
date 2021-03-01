@@ -6,7 +6,8 @@ from Levenshtein import ratio
 
 locked_channels = []  # Channel IDs that are currently in use by a game
 
-questions = [] # Questions that have been sent
+questions = []  # Questions that have been sent
+
 
 class Trivia(commands.Cog):
     def __init__(self, bot, db, cur):
@@ -77,7 +78,7 @@ class Trivia(commands.Cog):
 
             while play:  # TODO: Change this to True and use break/return
                 question = self.get_question()
-                if question not in questions: # If the sent question was not already sent (no in the list questions) proceed as normal
+                if question not in questions:  # If the sent question was not already sent (no in the list questions) proceed as normal
                     await sleep(2)
                     await ctx.send(question[0])
                     try:
@@ -87,7 +88,7 @@ class Trivia(commands.Cog):
                     except TimeoutError:
                         locked_channels.remove(ctx.channel.id)
                         await ctx.send('Alright then, exiting...'
-                                    )  # No answer? Then stop the game
+                                       )  # No answer? Then stop the game
                         break
                     if resp.content == "stop":  # The answer is 'stop'? End the game
                         await ctx.send('Exiting...')
@@ -115,10 +116,9 @@ class Trivia(commands.Cog):
                         await ctx.send(str(resp.author) + ' Wins!')
                         locked_channels.remove(ctx.channel.id)
                     questions.append(question)
-                else: 
-                    if len(questions) > 100: # If the question has been sent just check to see that the list isn't too big
-                        questions[:] = [] # If it is, clean the list
-                            
+                else:
+                    if len(questions) > 100:  # If the question has been sent just check to see that the list isn't too big
+                        questions[:] = []  # If it is, clean the list
 
     @trivia.command()
     async def top(self, ctx):
