@@ -5,7 +5,7 @@ from asyncio import sleep, TimeoutError
 from Levenshtein import ratio
 
 locked_channels = []  # Channel IDs that are currently in use by a game
-avaible_channels = ['553637881135235102', '794648440004673537']
+avaible_channels = []
 
 
 class Trivia(commands.Cog):
@@ -49,6 +49,26 @@ class Trivia(commands.Cog):
                 'INSERT INTO score(id, losses) VALUES (?, 1) ON CONFLICT(id) DO UPDATE SET losses=losses+1',
                 (loser, ))
         self.db.commit()
+
+    @commands.command(usage="#somechannel")
+    @commands.has_permissions(manage_roles=True)
+    async def triviachan(self, ctx):
+        """Sets the channel in which the bot posts the role message"""
+        chan = ctx.message.channel_mentions[0]
+        if chan.id == self.bot.getConfig('Trivia', 'channel_1'):
+            return
+        elif chan.id == self.bot.getConfig('Trivia', 'channel_2'):
+            return
+
+        if len(self.bot.config.get('Trivia', 'channel_1')) == 0:
+            self.bot.setConfig('Trivia', 'channel_1', str(chan.id))
+            avaible_channels.append(self.bot.setConfig('Trivia', 'channel_1', str(chan.id)))
+
+        elif len(self.bot.config.get('Trivia', 'channel_1')) > 0:
+            self.bot.setConfig('Trivia', 'channel_2', str(chan.id))
+            avaible_channels.append(self.bot.setConfig('Trivia', 'channel_2', str(chan.id)))
+        # await self.send_message()
+        await ctx.send('Channel set!')
 
     @commands.group(
         description='An RA themed competitive trivia game, with scoreboard.')
@@ -113,7 +133,6 @@ class Trivia(commands.Cog):
                     self.tally_scores(round_result)
                     await ctx.send(str(resp.author) + ' Wins!')
                     locked_channels.remove(ctx.channel.id)
-                questions.append(question)
         else:
             if ctx.channel.id not in avaible_channels:
                 return await ctx.send("This isn't a valid trivia channel!")
