@@ -204,8 +204,8 @@ class Utils(commands.Cog):
 
             return pytz.timezone(timezone)
 
-        nzone = convert_tz(nzone)
-        ozone = convert_tz(ozone)
+        nzone = convert_tz(nzone.upper())
+        ozone = convert_tz(ozone.upper())
         otime = datetime.strftime(utime, tformat)
         ntime = datetime.strftime(utime.astimezone(nzone), tformat)
         await ctx.send(f"{otime} {ozone} is {ntime} {nzone}")
