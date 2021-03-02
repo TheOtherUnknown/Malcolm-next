@@ -1,6 +1,7 @@
 import discord, os, asyncio, random
 from discord.ext import commands
 from datetime import datetime, timedelta
+import pytz
 
 
 # Helper methods
@@ -139,11 +140,83 @@ class Utils(commands.Cog):
                 'You don\'t qualify to be verified yet! Check back 24 hours after you join.'
             )
 
+    @commands.command(
+        usage="[time] [am/pm] [original timezone] [timezone to convert to]")
+    async def time(self, ctx, utime, apm, ozone, nzone):
+        """Converts times from one timezone to another"""
+        tformat = '%I:%M %p'
+        try:
+            utime = datetime.strptime(f"{utime} {apm}", tformat)
+        except ValueError:
+            await ctx.send('Couldn\'t parse that time, see ,help time')
+            return
+
+        def convert_tz(timezone: str):
+            # Convert the user given timezone into a valid pytz timezone
+            if timezone == 'EST':
+                timezone = 'America/New_York'
+            elif timezone == 'CET':
+                timezone = 'Europe/London'
+            elif timezone == 'EET':
+                timezone = 'Europe/Amsterdam'
+            elif timezone == 'MSK':
+                timezone = 'Europe/Moscow'
+            elif timezone == 'AMT':
+                timezone = 'Asia/Dubai'
+            elif timezone == 'PKT':
+                timezone = 'Indian/Maldives'
+            elif timezone == 'OMSK':
+                timezone = 'Indian/Chagos'
+            elif timezone == 'KRAT':
+                timezone = 'Asia/Bangkok'
+            elif timezone == 'JST':
+                timezone = 'Asia/Tokyo'
+            elif timezone == 'AEST':
+                timezone = 'Australia/Queensland'
+            elif timezone == 'SAKT':
+                timezone = 'Pacific/Ponape'
+            elif timezone == 'NZST':
+                timezone = 'Pacific/Fiji'
+            elif timezone == 'IDLW':
+                timezone = 'Etc/GMT+12'
+            elif timezone == 'NT':
+                timezone = 'US/Samoa'
+            elif timezone == 'HST':
+                timezone = 'Pacific/Honolulu'
+            elif timezone == 'AKST':
+                timezone = 'America/Adak'
+            elif timezone == 'PST':
+                timezone = 'America/Nome'
+            elif timezone == 'MST':
+                timezone = 'America/Los_Angeles'
+            elif timezone == 'CST':
+                timezone = 'America/Denver'
+            elif timezone == 'AST':
+                timezone = 'America/Aruba'
+            elif timezone == 'ART':
+                timezone = 'America/Belem'
+            elif timezone == 'AT':
+                timezone = 'America/Godthab'
+            elif timezone == 'WAT':
+                timezone = 'Atlantic/Cape_Verde'
+            elif timezone == 'GMT' or timezone == 'UTC':
+                timezone = 'Universal'
+
+            return pytz.timezone(timezone)
+
+        nzone = convert_tz(nzone)
+        ozone = convert_tz(ozone)
+        otime = datetime.strftime(utime, tformat)
+        ntime = datetime.strftime(utime.astimezone(nzone), tformat)
+        await ctx.send(f"{otime} {ozone} is {ntime} {nzone}")
+
     # == START MOD COMMANDS == #
 
-    @commands.command(
-        brief='Create polls using embeds and reactions', usage="\"question\" \"answers 1-9\"")
-    @commands.has_any_role('Mods', 616448412057075768)  # Only people with the role of Mods can use this command
+    @commands.command(brief='Create polls using embeds and reactions',
+                      usage="\"question\" \"answers 1-9\"")
+    @commands.has_any_role(
+        'Mods', 616448412057075768
+    )  # Only people with the role of Mods can use this command
     async def poll(self, ctx, question, *args):
         """
         Create embed polls with one question and up to 9 responses.
@@ -151,15 +224,25 @@ class Utils(commands.Cog):
         # Curernt max amount of answers is 9 as there are only 9 digit reactions
 
         if len(args) > 9:
-            return await ctx.send("You have provided more than nine choices; therefore, the poll was not sent")
+            return await ctx.send(
+                "You have provided more than nine choices; therefore, the poll was not sent"
+            )
 
-        reactions = ['1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣']  # A list of all the reactions that could be added
+        reactions = [
+            '1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣'
+        ]  # A list of all the reactions that could be added
 
         user = ctx.author  # Get the author for the footer of the embed
 
-        embed = discord.Embed(title=f"**__{question}__**")  # Set the title of the embed as the question provided
-        embed.set_thumbnail(url=user.avatar_url)  # Set the thumbnail as the authors discord profile picture
-        embed.set_author(name=user)  # Set the author of the embed as the person who sent the command
+        embed = discord.Embed(
+            title=f"**__{question}__**"
+        )  # Set the title of the embed as the question provided
+        embed.set_thumbnail(
+            url=user.avatar_url
+        )  # Set the thumbnail as the authors discord profile picture
+        embed.set_author(
+            name=user
+        )  # Set the author of the embed as the person who sent the command
 
         for i, j in enumerate(args, 1):
             embed.add_field(name=str(i), value=str(j))
