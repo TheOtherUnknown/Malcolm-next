@@ -106,7 +106,7 @@ class Trivia(commands.Cog):
                 except TimeoutError:
                     locked_channels.remove(ctx.channel.id)
                     await ctx.send('Alright then, exiting...'
-                                    )  # No answer? Then stop the game
+                                   )  # No answer? Then stop the game
                     break
                 if resp.content == "stop":  # The answer is 'stop'? End the game
                     await ctx.send('Exiting...')
