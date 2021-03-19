@@ -145,18 +145,14 @@ class Utils(commands.Cog):
     async def time(self, ctx, utime, apm, ozone, nzone):
         """Converts times from one timezone to another"""
         tformat = '%I:%M %p'
-        try:
-            utime = datetime.strptime(f"{utime} {apm}", tformat)
-        except ValueError:
-            await ctx.send('Couldn\'t parse that time, see ,help time')
-            return
 
         def convert_tz(timezone: str):
             # Convert the user given timezone into a valid pytz timezone
+            timezone = timezone.upper()
             if timezone == 'EST':
                 timezone = 'America/New_York'
             elif timezone == 'CET':
-                timezone = 'Europe/London'
+                timezone = 'Europe/Paris'
             elif timezone == 'EET':
                 timezone = 'Europe/Amsterdam'
             elif timezone == 'MSK':
@@ -199,13 +195,22 @@ class Utils(commands.Cog):
                 timezone = 'America/Godthab'
             elif timezone == 'WAT':
                 timezone = 'Atlantic/Cape_Verde'
-            elif timezone == 'GMT' or timezone == 'UTC':
+            else:
                 timezone = 'Universal'
 
             return pytz.timezone(timezone)
 
-        nzone = convert_tz(nzone.upper())
-        ozone = convert_tz(ozone.upper())
+        nzone = convert_tz(nzone)
+        ozone = convert_tz(ozone)
+        try:
+            # This should make us DST aware... Maybe
+            utime = datetime.strptime(f"{utime} {apm}", tformat)
+            utime = ozone.localize(
+                datetime.combine(date=datetime.today(), time=utime.time()))
+        except ValueError:
+            await ctx.send('Couldn\'t parse that time, see ,help time')
+            return
+
         otime = datetime.strftime(utime, tformat)
         ntime = datetime.strftime(utime.astimezone(nzone), tformat)
         await ctx.send(f"{otime} {ozone} is {ntime} {nzone}")
