@@ -184,7 +184,7 @@ class Utils(commands.Cog):
             elif timezone == 'PST':
                 timezone = 'America/Phoenix'
             elif timezone == 'MST':
-                timezone = 'America/Los_Angeles'
+                timezone = 'America/Denver'
             elif timezone == 'CST':
                 timezone = 'America/Denver'
             elif timezone == 'AST':
