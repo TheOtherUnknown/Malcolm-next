@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 from discord.ext import commands
-import configparser, discord, sys, sqlite3, logging
+import yaml, discord, sys, sqlite3, logging
 
 from cogs.joinleave import JoinLeave
 from cogs.roles import Roles
@@ -18,8 +18,8 @@ class Malcolm(commands.Bot):
                  description=None,
                  **options):
         self.configpath = configpath
-        self.config = configparser.ConfigParser()
-        self.config.read(configpath)
+        conf_file = open(configpath)
+        self.config = yaml.safe_load(conf_file)
         super().__init__(command_prefix,
                          help_command=help_command,
                          description=description,
@@ -27,7 +27,7 @@ class Malcolm(commands.Bot):
 
     def getConfig(self, section: str, item: str) -> str:
         """Returns a String value from the bot's config file"""
-        if item == 'Token':
+        if item == 'token':
             # Yes, I'm aware that the original ConfigParser is avalible.
             # This is more of a reminder for me
             raise PermissionError('You can\'t get the token during runtime')
@@ -42,11 +42,11 @@ class Malcolm(commands.Bot):
                 "You can't modify API settings while the bot is running!")
         self.config[section][item] = value
         with open(self.configpath, 'w') as configfile:
-            self.config.write(configfile)
+            yaml.dump(self.config, configfile)
 
     def run(self):
         """Calls discord.ext.commands.Bot.run() with token info"""
-        super().run(self.config['API']['Token'])
+        super().run(self.config['API']['token'])
 
 
 intents = discord.Intents()

@@ -29,7 +29,7 @@ class Roles(commands.Cog):
         for role in self.cur.execute('SELECT * from roles ORDER BY letter'):
             msg += f"- {role[1]} {get_emoji(role[0])}\n"
         chan = self.bot.get_channel(int(self.bot.getConfig('Roles',
-                                                           'Channel')))
+                                                           'channel')))
         if chan is not None:  # There is a channel set, right?
             #  Did we send the last message (Old role message)? Then edit it
             try:
@@ -47,9 +47,9 @@ class Roles(commands.Cog):
     async def rolechan(self, ctx):
         """Sets the channel in which the bot posts the role message"""
         chan = ctx.message.channel_mentions[0]
-        if chan.id == self.bot.getConfig('Roles', 'Channel'):
+        if chan.id == self.bot.getConfig('Roles', 'channel'):
             return
-        self.bot.setConfig('Roles', 'Channel', str(chan.id))
+        self.bot.setConfig('Roles', 'channel', str(chan.id))
         await self.send_message()
         await ctx.send('Channel set!')
 
@@ -77,7 +77,7 @@ class Roles(commands.Cog):
     @commands.Cog.listener()
     async def on_raw_reaction_add(self, payload):
         # Is the react from the role channel?
-        if payload.channel_id == int(self.bot.getConfig('Roles', 'Channel')):
+        if payload.channel_id == int(self.bot.getConfig('Roles', 'channel')):
             channel = self.bot.get_channel(payload.channel_id)
             guild = self.bot.get_guild(payload.guild_id)
             # Is it the last message in the channel?
@@ -96,7 +96,7 @@ class Roles(commands.Cog):
     @commands.Cog.listener()
     async def on_raw_reaction_remove(self, payload):
         # Is the react from the role channel?
-        if payload.channel_id == int(self.bot.getConfig('Roles', 'Channel')):
+        if payload.channel_id == int(self.bot.getConfig('Roles', 'channel')):
             channel = self.bot.get_channel(payload.channel_id)
             guild = self.bot.get_guild(payload.guild_id)
             # Is it the last message in the channel?
