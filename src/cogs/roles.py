@@ -15,7 +15,7 @@ class Roles(commands.Cog):
         msg = 'React with one of the emotes below to be given the indicated vanity role:\n'
         for role in self.cur.execute(
                 'SELECT name, emoji from roles ORDER BY name'):
-            msg += f"{self.bot.get_emoji(role[1])} - `{role[0]}`\n"  # EMOJI - `ROLENAME`
+            msg += f"{role[1]} - `{role[0]}`\n"  # EMOJI - `ROLENAME`
         chan = self.bot.get_channel(int(self.bot.getConfig('Roles',
                                                            'channel')))
         if chan is not None:  # There is a channel set, right?
@@ -41,9 +41,9 @@ class Roles(commands.Cog):
         await self.send_message()
         await ctx.send('Channel set!')
 
-    @commands.command(usage='DEFAULT EMOJI @somerole')
+    @commands.command(usage='@somerole')
     @commands.has_permissions(manage_roles=True)
-    async def roleset(self, ctx, emoji, role: discord.Role):
+    async def roleset(self, ctx, role: discord.Role):
         """Assigns an emoji to a role"""
         rolechan = self.bot.getConfig('Roles', 'Channel')
         # A message can only have 20 reacts, so limit to the first 20 letters
@@ -52,10 +52,20 @@ class Roles(commands.Cog):
             await ctx.send(
                 'The role channel does not exist, or has too many roles!')
             return
-            # Insert, or replace if it already exists
+        prompt = await ctx.send(
+            'React to this message with an emoji for the role')
+
+        def check(reaction, user):
+            # Make sure the react was to the prompt message by the same user
+            return reaction.message == prompt and user.id == ctx.author.id
+
+        react, _user = await self.bot.wait_for('reaction_add',
+                                               timeout=60.0,
+                                               check=check)
+        # Insert, or replace if it already exists
         self.cur.execute(
-            'INSERT INTO roles VALUES(?,?) ON CONFLICT(name, emoji) DO UPDATE name=excluded.name, emoji=excluded.emoji',
-            (role.name, emoji.id))
+            'INSERT INTO roles VALUES(?,?) ON CONFLICT(name) DO UPDATE SET name=excluded.name, emoji=excluded.emoji',
+            (role.name, str(react)))
         self.db.commit()
         await self.send_message()
         await ctx.send('Role set!')
@@ -70,9 +80,9 @@ class Roles(commands.Cog):
             if payload.message_id == channel.last_message_id:
                 entry = self.cur.execute(
                     'SELECT * FROM roles where emoji=?',
-                    (payload.emoji.id),
+                    (str(payload.emoji)),
                 ).fetchone()
-                role = discord.utils.get(guild.roles, name=entry[1])
+                role = discord.utils.get(guild.roles, name=entry[0])
                 if not role:
                     logging.error(
                         'User attempted to add role %s which was not found, ignoring',
@@ -90,9 +100,9 @@ class Roles(commands.Cog):
             if payload.message_id == channel.last_message_id:
                 entry = self.cur.execute(
                     'SELECT * FROM roles where emoji=?',
-                    (payload.emoji.id),
+                    (str(payload.emoji)),
                 ).fetchone()
-                role = discord.utils.get(guild.roles, name=entry[1])
+                role = discord.utils.get(guild.roles, name=entry[0])
                 if not role:
                     logging.error(
                         'User attempted to remove role %s which was not found, ignoring',
