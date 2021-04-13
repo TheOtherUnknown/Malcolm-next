@@ -45,7 +45,7 @@ class Roles(commands.Cog):
     @commands.has_permissions(manage_roles=True)
     async def roleset(self, ctx, role: discord.Role):
         """Assigns an emoji to a role"""
-        rolechan = self.bot.getConfig('Roles', 'Channel')
+        rolechan = self.bot.getConfig('Roles', 'channel')
         # A message can only have 20 reacts, so limit to the first 20 letters
         if not rolechan or self.cur.execute(
                 'SELECT Count(*) FROM roles').fetchone()[0] > 19:
@@ -80,7 +80,7 @@ class Roles(commands.Cog):
             if payload.message_id == channel.last_message_id:
                 entry = self.cur.execute(
                     'SELECT * FROM roles where emoji=?',
-                    (str(payload.emoji)),
+                    (str(payload.emoji),)
                 ).fetchone()
                 role = discord.utils.get(guild.roles, name=entry[0])
                 if not role:
@@ -100,7 +100,7 @@ class Roles(commands.Cog):
             if payload.message_id == channel.last_message_id:
                 entry = self.cur.execute(
                     'SELECT * FROM roles where emoji=?',
-                    (str(payload.emoji)),
+                    (str(payload.emoji),)
                 ).fetchone()
                 role = discord.utils.get(guild.roles, name=entry[0])
                 if not role:
