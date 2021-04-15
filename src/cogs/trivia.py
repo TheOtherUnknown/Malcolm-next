@@ -8,6 +8,7 @@ from Levenshtein import ratio
 locked_channels = []  # Channel IDs that are currently in use by a game
 available_channels = []
 
+
 class Trivia(commands.Cog):
     def __init__(self, bot, db, cur):
         self.bot = bot
@@ -62,10 +63,9 @@ class Trivia(commands.Cog):
 
         self.bot.setConfig('Trivia', 'channels', values)
 
-        available_channels = values 
+        available_channels = values
 
         await ctx.send("Channel set!")
-
 
     @commands.command(usage="somechannel")
     @commands.has_permissions(manage_roles=True)
@@ -75,15 +75,13 @@ class Trivia(commands.Cog):
         if channel not in values:
             return await ctx.send('Channel not set!')
 
-
         for i, j in enumerate(values):
             if j == channel:
-                del values[i] 
+                del values[i]
 
                 self.bot.setConfig('Trivia', 'channels', values)
 
         await ctx.send("Channel removed!")
-
 
     @commands.group(
         description='An RA themed competitive trivia game, with scoreboard.')
