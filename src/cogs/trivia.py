@@ -8,7 +8,6 @@ from Levenshtein import ratio
 locked_channels = []  # Channel IDs that are currently in use by a game
 available_channels = []
 
-
 class Trivia(commands.Cog):
     def __init__(self, bot, db, cur):
         self.bot = bot
@@ -51,7 +50,7 @@ class Trivia(commands.Cog):
                 (loser, ))
         self.db.commit()
 
-    @commands.command(usage="#somechannel")
+    @commands.command(usage="somechannel")
     @commands.has_permissions(manage_roles=True)
     async def triviachan(self, ctx, channel):
         values = self.bot.getConfig('Trivia', 'channels')
@@ -62,7 +61,29 @@ class Trivia(commands.Cog):
         values.append(channel)
 
         self.bot.setConfig('Trivia', 'channels', values)
-        await ctx.send(f"{type(values)} <- values -> {values} || {channel} <- channel")
+
+        available_channels = values 
+
+        await ctx.send("Channel set!")
+
+
+    @commands.command(usage="somechannel")
+    @commands.has_permissions(manage_roles=True)
+    async def removetriviachan(self, ctx, channel):
+        values = self.bot.getConfig('Trivia', 'channels')
+
+        if channel not in values:
+            return await ctx.send('Channel not set!')
+
+
+        for i, j in enumerate(values):
+            if j == channel:
+                del values[i] 
+
+                self.bot.setConfig('Trivia', 'channels', values)
+
+        await ctx.send("Channel removed!")
+
 
     @commands.group(
         description='An RA themed competitive trivia game, with scoreboard.')
@@ -74,6 +95,7 @@ class Trivia(commands.Cog):
     async def start(self, ctx, goal=5):
         """Starts a new trivia game in the current channel with a minimum of 5 questions, max 50"""
         # Ensure someone is not trying to start two games in the same channel
+
         if ctx.channel.id not in locked_channels and ctx.channel.id in available_channels:
             locked_channels.append(ctx.channel.id)
             # Let's not go overboard
