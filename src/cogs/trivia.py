@@ -4,8 +4,9 @@ import discord
 from asyncio import sleep, TimeoutError
 from Levenshtein import ratio
 
+
 locked_channels = []  # Channel IDs that are currently in use by a game
-avaible_channels = []
+available_channels = []
 
 
 class Trivia(commands.Cog):
@@ -52,23 +53,16 @@ class Trivia(commands.Cog):
 
     @commands.command(usage="#somechannel")
     @commands.has_permissions(manage_roles=True)
-    async def triviachan(self, ctx):
-        """Sets the channel in which the bot posts the role message"""
-        chan = ctx.message.channel_mentions[0]
-        if chan.id == self.bot.getConfig('Trivia', 'channel_1'):
-            return
-        elif chan.id == self.bot.getConfig('Trivia', 'channel_2'):
-            return
+    async def triviachan(self, ctx, channel):
+        values = self.bot.getConfig('Trivia', 'channels')
 
-        if len(self.bot.config.get('Trivia', 'channel_1')) == 0:
-            self.bot.setConfig('Trivia', 'channel_1', str(chan.id))
-            avaible_channels.append(self.bot.setConfig('Trivia', 'channel_1', str(chan.id)))
+        if channel in values:
+            return await ctx.send('Channel Set!')
 
-        elif len(self.bot.config.get('Trivia', 'channel_1')) > 0:
-            self.bot.setConfig('Trivia', 'channel_2', str(chan.id))
-            avaible_channels.append(self.bot.setConfig('Trivia', 'channel_2', str(chan.id)))
-        # await self.send_message()
-        await ctx.send('Channel set!')
+        values.append(channel)
+
+        self.bot.setConfig('Trivia', 'channels', values)
+        await ctx.send(f"{type(values)} <- values -> {values} || {channel} <- channel")
 
     @commands.group(
         description='An RA themed competitive trivia game, with scoreboard.')
@@ -80,7 +74,7 @@ class Trivia(commands.Cog):
     async def start(self, ctx, goal=5):
         """Starts a new trivia game in the current channel with a minimum of 5 questions, max 50"""
         # Ensure someone is not trying to start two games in the same channel
-        if ctx.channel.id not in locked_channels and ctx.channel.id in avaible_channels:
+        if ctx.channel.id not in locked_channels and ctx.channel.id in available_channels:
             locked_channels.append(ctx.channel.id)
             # Let's not go overboard
             if goal < 5 or goal > 50:
@@ -134,7 +128,7 @@ class Trivia(commands.Cog):
                     await ctx.send(str(resp.author) + ' Wins!')
                     locked_channels.remove(ctx.channel.id)
         else:
-            if ctx.channel.id not in avaible_channels:
+            if ctx.channel.id not in available_channels:
                 return await ctx.send("This isn't a valid trivia channel!")
 
             elif ctx.channel.id in locked_channels:
