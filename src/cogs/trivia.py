@@ -4,9 +4,7 @@ import discord
 from asyncio import sleep, TimeoutError
 from Levenshtein import ratio
 
-
 locked_channels = []  # Channel IDs that are currently in use by a game
-available_channels = []
 
 
 class Trivia(commands.Cog):
@@ -52,7 +50,7 @@ class Trivia(commands.Cog):
         self.db.commit()
 
     @commands.command(usage="somechannel")
-    @commands.has_permissions(manage_roles=True)
+    @commands.has_permissions(manage_channels=True)
     async def triviachan(self, ctx, channel):
         values = self.bot.getConfig('Trivia', 'channels')
 
@@ -63,12 +61,10 @@ class Trivia(commands.Cog):
 
         self.bot.setConfig('Trivia', 'channels', values)
 
-        available_channels = values
-
         await ctx.send("Channel set!")
 
     @commands.command(usage="somechannel")
-    @commands.has_permissions(manage_roles=True)
+    @commands.has_permissions(manage_channels=True)
     async def removetriviachan(self, ctx, channel):
         values = self.bot.getConfig('Trivia', 'channels')
 
@@ -93,6 +89,8 @@ class Trivia(commands.Cog):
     async def start(self, ctx, goal=5):
         """Starts a new trivia game in the current channel with a minimum of 5 questions, max 50"""
         # Ensure someone is not trying to start two games in the same channel
+
+        available_channels = self.bot.getConfig('Trivia', 'channels')
 
         if ctx.channel.id not in locked_channels and ctx.channel.id in available_channels:
             locked_channels.append(ctx.channel.id)
@@ -149,10 +147,11 @@ class Trivia(commands.Cog):
                     locked_channels.remove(ctx.channel.id)
         else:
             if ctx.channel.id not in available_channels:
+
                 return await ctx.send("This isn't a valid trivia channel!")
 
             elif ctx.channel.id in locked_channels:
-                return await ctx.send("There is already a game in this channel!")
+                return
 
     @trivia.command()
     async def top(self, ctx):
