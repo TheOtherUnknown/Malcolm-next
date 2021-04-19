@@ -64,7 +64,7 @@ class Roles(commands.Cog):
                                                check=check)
         # Insert, or replace if it already exists
         self.cur.execute(
-            'INSERT INTO roles VALUES(?,?) ON CONFLICT(name) DO UPDATE SET name=excluded.name, emoji=excluded.emoji',
+            'INSERT INTO roles (name, emoji) VALUES(?,?) ON CONFLICT(name) DO UPDATE SET name=excluded.name, emoji=excluded.emoji',
             (role.name, str(react)))
         self.db.commit()
         await self.send_message()
