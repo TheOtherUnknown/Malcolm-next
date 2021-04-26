@@ -3,8 +3,10 @@ from discord.ext import commands
 import discord
 from asyncio import sleep, TimeoutError
 from Levenshtein import ratio
+import time
 
 locked_channels = []  # Channel IDs that are currently in use by a game
+tourney_channels = []
 
 
 class Trivia(commands.Cog):
@@ -53,7 +55,8 @@ class Trivia(commands.Cog):
         description='An RA themed competitive trivia game, with scoreboard.')
     async def trivia(self, ctx):
         if ctx.invoked_subcommand is None:
-            await ctx.send('Trivia what? Use `,trivia start|top|stats`')
+            await ctx.send('Trivia what? Use `,trivia start|top|stats|tourney`'
+                           )
 
     @trivia.command(usage="[points]")
     async def start(self, ctx, goal=5):
@@ -73,6 +76,13 @@ class Trivia(commands.Cog):
                 """Predicate function for bot.wait_for().
                 Is the channel sent == the context channel and not the bot?"""
                 return message.channel == ctx.channel and message.author != self.bot.user
+
+            if ctx.channel.id in tourney_channels:
+                await ctx.send("3")
+                time.sleep(0.5)
+                await ctx.send("2")
+                time.sleep(0.5)
+                await ctx.send("1")
 
             while play:  # TODO: Change this to True and use break/return
                 question = self.get_question()
@@ -112,6 +122,16 @@ class Trivia(commands.Cog):
                     self.tally_scores(round_result)
                     await ctx.send(str(resp.author) + ' Wins!')
                     locked_channels.remove(ctx.channel.id)
+
+    @trivia.command()
+    async def tourney(self, ctx, games: int = 1):
+        while games:
+            tourney_channels.append(ctx.channel.id)
+            if len(tourney_channels) >= games:
+                break
+
+        return await ctx.send(
+            f"Tournament Mode Activated for the next {games} game(s)")
 
     @trivia.command()
     async def top(self, ctx):
