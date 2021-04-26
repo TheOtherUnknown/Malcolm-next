@@ -119,10 +119,17 @@ class Trivia(commands.Cog):
                 round_result = self.check_winner(scores, goal)
                 if round_result is not None:
                     play = False
-                    self.tally_scores(round_result)
-                    await ctx.send(str(resp.author) + ' Wins!')
-                    locked_channels.remove(ctx.channel.id)
-                    tourney_channels.remove(ctx.channel.id)
+                    if ctx.channel.id in tourney_channels:
+                        await ctx.send(str(resp.author) + ' Wins!')
+                        locked_channels.remove(ctx.channel.id)
+                        tourney_channels.remove(ctx.channel.id)
+                    
+
+                    elif ctx.channel.id not in tourney_channels:
+                        self.tally_scores(round_result)
+                        await ctx.send(str(resp.author) + ' Wins!')
+                        locked_channels.remove(ctx.channel.id)
+                        tourney_channels.remove(ctx.channel.id)
 
     @trivia.command()
     async def tourney(self, ctx, games: int = 1):
