@@ -123,7 +123,6 @@ class Trivia(commands.Cog):
                         await ctx.send(str(resp.author) + ' Wins!')
                         locked_channels.remove(ctx.channel.id)
                         tourney_channels.remove(ctx.channel.id)
-                    
 
                     elif ctx.channel.id not in tourney_channels:
                         self.tally_scores(round_result)
