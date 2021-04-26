@@ -122,6 +122,7 @@ class Trivia(commands.Cog):
                     self.tally_scores(round_result)
                     await ctx.send(str(resp.author) + ' Wins!')
                     locked_channels.remove(ctx.channel.id)
+                    tourney_channels.remove(ctx.channel.id)
 
     @trivia.command()
     async def tourney(self, ctx, games: int = 1):
