@@ -88,6 +88,9 @@ class Trivia(commands.Cog):
     @trivia.command(usage="[points]")
     async def start(self, ctx, goal=5):
         """Starts a new trivia game in the current channel with a minimum of 5 questions, max 50"""
+
+        questions = set()  # Questions that have been sent
+
         # Ensure someone is not trying to start two games in the same channel
 
         available_channels = self.bot.getConfig('Trivia', 'channels')
@@ -109,49 +112,49 @@ class Trivia(commands.Cog):
 
             while play:  # TODO: Change this to True and use break/return
                 question = self.get_question()
-                await sleep(2)
-                await ctx.send(question[0])
-                try:
-                    resp = await self.bot.wait_for(
-                        'message', check=check,
-                        timeout=60.0)  # Wait 60secs for an answer
-                except TimeoutError:
-                    locked_channels.remove(ctx.channel.id)
-                    await ctx.send('Alright then, exiting...'
-                                   )  # No answer? Then stop the game
-                    break
-                if resp.content == "stop":  # The answer is 'stop'? End the game
-                    await ctx.send('Exiting...')
-                    locked_channels.remove(ctx.channel.id)
-                    break
-                # This line uses a fuzzy-match algorithm defined in get_ratio
-                # to check if the input answer is *close* to the correct one.
-                if self.get_dist(resp.content, question[1]) > .86:
-                    await ctx.send('You got it!')
-                    # Prevent a KeyError by making sure the user is in the dict
-                    if resp.author.id in scores:
-                        scores[resp.author.id] += 1
-                    else:
-                        scores[resp.author.id] = 1
-                else:  # Someone got the question wrong
-                    await ctx.send(
-                        f'Nope! The correct answer was {question[1]}')
-                    # Even if they miss it, losses needed to be counted
-                    if resp.author.id not in scores.keys():
-                        scores[resp.author.id] = 0
-                round_result = self.check_winner(scores, goal)
-                if round_result is not None:
-                    play = False
-                    self.tally_scores(round_result)
-                    await ctx.send(str(resp.author) + ' Wins!')
-                    locked_channels.remove(ctx.channel.id)
-        else:
-            if ctx.channel.id not in available_channels:
-
-                return await ctx.send("This isn't a valid trivia channel!")
-
-            elif ctx.channel.id in locked_channels:
-                return
+                if question not in questions:  # If the sent question was not already sent (no in the list questions) proceed as normal
+                    await sleep(2)
+                    await ctx.send(question[0])
+                    try:
+                        resp = await self.bot.wait_for(
+                            'message', check=check,
+                            timeout=60.0)  # Wait 60secs for an answer
+                    except TimeoutError:
+                        locked_channels.remove(ctx.channel.id)
+                        await ctx.send('Alright then, exiting...'
+                                       )  # No answer? Then stop the game
+                        break
+                    if resp.content == "stop":  # The answer is 'stop'? End the game
+                        await ctx.send('Exiting...')
+                        locked_channels.remove(ctx.channel.id)
+                        break
+                    # This line uses a fuzzy-match algorithm defined in get_ratio
+                    # to check if the input answer is *close* to the correct one.
+                    if self.get_dist(resp.content, question[1]) > .86:
+                        await ctx.send('You got it!')
+                        # Prevent a KeyError by making sure the user is in the dict
+                        if resp.author.id in scores:
+                            scores[resp.author.id] += 1
+                        else:
+                            scores[resp.author.id] = 1
+                    else:  # Someone got the question wrong
+                        await ctx.send(
+                            f'Nope! The correct answer was {question[1]}')
+                        # Even if they miss it, losses needed to be counted
+                        if resp.author.id not in scores.keys():
+                            scores[resp.author.id] = 0
+                    round_result = self.check_winner(scores, goal)
+                    if round_result is not None:
+                        play = False
+                        self.tally_scores(round_result)
+                        await ctx.send(str(resp.author) + ' Wins!')
+                        locked_channels.remove(ctx.channel.id)
+                    questions.add(question)
+                else:
+                    if len(
+                            questions
+                    ) > 100:  # If the question has been sent just check to see that the list isn't too big
+                        questions = set()  # If it is, clean the set
 
     @trivia.command()
     async def top(self, ctx):
