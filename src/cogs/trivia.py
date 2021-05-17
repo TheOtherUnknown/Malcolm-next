@@ -51,7 +51,7 @@ class Trivia(commands.Cog):
 
     @commands.command(usage="somechannel")
     @commands.has_permissions(manage_channels=True)
-    async def triviachan(self, ctx, channel):
+    async def tchan(self, ctx, channel):
         values = self.bot.getConfig('Trivia', 'channels')
 
         if channel in values:
@@ -65,7 +65,7 @@ class Trivia(commands.Cog):
 
     @commands.command(usage="somechannel")
     @commands.has_permissions(manage_channels=True)
-    async def removetriviachan(self, ctx, channel):
+    async def rmtchan(self, ctx, channel):
         values = self.bot.getConfig('Trivia', 'channels')
 
         if channel not in values:
