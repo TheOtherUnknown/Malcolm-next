@@ -141,7 +141,7 @@ class Utils(commands.Cog):
             )
 
     @commands.command(
-        usage="[time] [am/pm] [original timezone] [timezone to convert to]")
+        usage="[time (include colon (:)] [am/pm] [original timezone] [timezone to convert to]", help="For a list of timezones see: https://gist.github.com/marvelman3284/a22e0113c690db74909e1ba4b30db04b")
     async def time(self, ctx, utime, apm, ozone, nzone):
         """Converts times from one timezone to another"""
         tformat = '%I:%M %p'
