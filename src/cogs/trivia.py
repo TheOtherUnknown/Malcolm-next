@@ -49,9 +49,12 @@ class Trivia(commands.Cog):
                 (loser, ))
         self.db.commit()
 
-    @commands.command(usage="somechannel")
+    @commands.command(usage="#somechannel")
     @commands.has_permissions(manage_channels=True)
     async def tchan(self, ctx, channel):
+        """
+        Set channels designated for the trivia game
+        """
         values = self.bot.getConfig('Trivia', 'channels')
 
         if channel in values:
@@ -63,9 +66,12 @@ class Trivia(commands.Cog):
 
         await ctx.send("Channel set!")
 
-    @commands.command(usage="somechannel")
+    @commands.command(usage="#somechannel")
     @commands.has_permissions(manage_channels=True)
     async def rmtchan(self, ctx, channel):
+        """
+        Remove channels designated for the trivia game
+        """
         values = self.bot.getConfig('Trivia', 'channels')
 
         if channel not in values:
