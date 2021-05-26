@@ -3,4 +3,4 @@ The rewrite of [Malcolm-TRA](https://github.com/TheOtherUnknown/Malcolm-TRA) in 
 
 To see features and fixes in the works, check out the [Trello board](https://trello.com/b/dAzxXA6Y/malcolm-next).
 
-Pull requests and suggestions welcome. 
+Pull requests and suggestions welcome. Please see the [Contributing guidelines](CONTRIBUTING.md) before doing so!
