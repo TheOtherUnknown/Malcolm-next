@@ -19,7 +19,7 @@ class Utils(commands.Cog):
         self.bot = bot
 
     @commands.command(
-        brief='Convenient solutions to inconvenient tech problems')
+        help='Convenient solutions to inconvenient tech problems')
     async def bofh(self, ctx):
         # https://stackoverflow.com/questions/14924721/how-to-choose-a-random-line-from-a-text-file#14924739
         line_num = 0

@@ -14,6 +14,8 @@ class JoinLeave(commands.Cog):
 
     @commands.Cog.listener()
     async def on_member_join(self, member):
+        """Any time a member joins the server,
+        send a message with a quote from join_msgs"""
         channel = member.guild.system_channel
         if channel is not None:
             await channel.send(
@@ -21,6 +23,7 @@ class JoinLeave(commands.Cog):
 
     @commands.Cog.listener()
     async def on_member_remove(self, member):
+        """Any time a member leaves, send a message"""
         channel = member.guild.system_channel
         if channel is not None:
             await channel.send(f'{member} has left the server')
