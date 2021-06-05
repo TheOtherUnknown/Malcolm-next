@@ -51,16 +51,18 @@ class Trivia(commands.Cog):
 
     @commands.command(usage="#somechannel")
     @commands.has_permissions(manage_channels=True)
-    async def tchan(self, ctx, channel):
+    async def tchan(self, ctx):
         """
         Set channels designated for the trivia game
         """
         values = self.bot.getConfig('Trivia', 'channels')
 
-        if channel in values:
-            return await ctx.send('Channel Set!')
+        channel = ctx.message.channel_mentions[0].id
 
-        values.append(channel)
+        if channel in values:
+            return await ctx.send('Channel Already Set!')
+
+        values.append(str(channel))
 
         self.bot.setConfig('Trivia', 'channels', values)
 
@@ -68,11 +70,13 @@ class Trivia(commands.Cog):
 
     @commands.command(usage="#somechannel")
     @commands.has_permissions(manage_channels=True)
-    async def rmtchan(self, ctx, channel):
+    async def rmtchan(self, ctx):
         """
         Remove channels designated for the trivia game
         """
         values = self.bot.getConfig('Trivia', 'channels')
+
+        channel = ctx.message.channel_mentions[0].id
 
         if channel not in values:
             return await ctx.send('Channel not set!')
@@ -100,7 +104,8 @@ class Trivia(commands.Cog):
         # Ensure someone is not trying to start two games in the same channel
         available_channels = self.bot.getConfig('Trivia', 'channels')
 
-        if ctx.channel.id not in locked_channels and ctx.channel.id in available_channels:
+        if ctx.channel.id not in locked_channels and str(
+                ctx.channel.id) in available_channels:
             locked_channels.append(ctx.channel.id)
             # Let's not go overboard
             if goal < 5 or goal > 50:
