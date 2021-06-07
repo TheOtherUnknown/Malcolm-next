@@ -18,8 +18,8 @@ class Utils(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(
-        help='Convenient solutions to inconvenient tech problems')
+    @commands.command(help='Convenient solutions to inconvenient tech problems'
+                      )
     async def bofh(self, ctx):
         # https://stackoverflow.com/questions/14924721/how-to-choose-a-random-line-from-a-text-file#14924739
         line_num = 0
@@ -101,7 +101,8 @@ class Utils(commands.Cog):
         cdate = ctx.guild.created_at
         embed.add_field(
             name='Creation date',
-            value=f"{cdate.ctime()}, {(datetime.utcnow() - cdate).days} days ago")
+            value=
+            f"{cdate.ctime()}, {(datetime.utcnow() - cdate).days} days ago")
         embed.set_thumbnail(url=ctx.guild.icon_url)
         embed.set_footer(text=f"ID: {ctx.guild.id}")
         await ctx.send(embed=embed)
@@ -128,7 +129,8 @@ class Utils(commands.Cog):
         await ctx.send(embed=embed)
 
     @commands.command(
-        brief='Add yourself to the verified user role in the server, if you qualify')
+        brief=
+        'Add yourself to the verified user role in the server, if you qualify')
     async def verify(self, ctx):
         joindate = ctx.author.joined_at
         if datetime.utcnow() > (joindate + timedelta(days=1)):  # One day
@@ -141,9 +143,9 @@ class Utils(commands.Cog):
             )
 
     @commands.command(
-        usage="[time] [am/pm] [original timezone] [timezone to convert to]", help="For a list of timezones see: https://github.com/TheOtherUnknown/Malcolm-next/wiki/Commands#time")
+        usage="[time] [am/pm] [original timezone] [timezone to convert to]")
     async def time(self, ctx, utime, apm, ozone, nzone):
-        """Converts times from one timezone to another"""
+        """Converts times from one timezone to another. For a list of timezones see: https://github.com/TheOtherUnknown/Malcolm-next/wiki/Commands#time"""
         tformat = '%I:%M %p'
 
         def convert_tz(timezone: str):
