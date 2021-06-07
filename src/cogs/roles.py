@@ -44,7 +44,7 @@ class Roles(commands.Cog):
     @commands.command(usage='@somerole')
     @commands.has_permissions(manage_roles=True)
     async def roleset(self, ctx, role: discord.Role):
-        """Assigns an emoji to a role"""
+        """Assigns an emoji to a reaction role"""
         rolechan = self.bot.getConfig('Roles', 'channel')
         # A message can only have 20 reacts, so limit to the first 20 letters
         if not rolechan or self.cur.execute(
@@ -70,6 +70,15 @@ class Roles(commands.Cog):
         await self.send_message()
         await ctx.send('Role set!')
 
+    @commands.command(usage='@somerole')
+    @commands.has_permissions(manage_roles=True)
+    async def rolerm(self, ctx, role: discord.Role):
+        """Removes a role from the reaction roles list"""
+        self.cur.execute('DELETE FROM roles WHERE name=?', (role.name, ))
+        self.db.commit()
+        await self.send_message()
+        await ctx.send('Role removed')
+
     @commands.Cog.listener()
     async def on_raw_reaction_add(self, payload):
         # Is the react from the role channel?
@@ -78,10 +87,8 @@ class Roles(commands.Cog):
             guild = self.bot.get_guild(payload.guild_id)
             # Is it the last message in the channel?
             if payload.message_id == channel.last_message_id:
-                entry = self.cur.execute(
-                    'SELECT * FROM roles where emoji=?',
-                    (str(payload.emoji),)
-                ).fetchone()
+                entry = self.cur.execute('SELECT * FROM roles where emoji=?',
+                                         (str(payload.emoji), )).fetchone()
                 role = discord.utils.get(guild.roles, name=entry[0])
                 if not role:
                     logging.error(
@@ -98,10 +105,8 @@ class Roles(commands.Cog):
             guild = self.bot.get_guild(payload.guild_id)
             # Is it the last message in the channel?
             if payload.message_id == channel.last_message_id:
-                entry = self.cur.execute(
-                    'SELECT * FROM roles where emoji=?',
-                    (str(payload.emoji),)
-                ).fetchone()
+                entry = self.cur.execute('SELECT * FROM roles where emoji=?',
+                                         (str(payload.emoji), )).fetchone()
                 role = discord.utils.get(guild.roles, name=entry[0])
                 if not role:
                     logging.error(
