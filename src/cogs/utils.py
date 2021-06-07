@@ -101,8 +101,7 @@ class Utils(commands.Cog):
         cdate = ctx.guild.created_at
         embed.add_field(
             name='Creation date',
-            value=
-            f"{cdate.ctime()}, {(datetime.utcnow() - cdate).days} days ago")
+            value=f"{cdate.ctime()}, {(datetime.utcnow() - cdate).days} days ago")
         embed.set_thumbnail(url=ctx.guild.icon_url)
         embed.set_footer(text=f"ID: {ctx.guild.id}")
         await ctx.send(embed=embed)
@@ -129,8 +128,7 @@ class Utils(commands.Cog):
         await ctx.send(embed=embed)
 
     @commands.command(
-        brief=
-        'Add yourself to the verified user role in the server, if you qualify')
+        brief='Add yourself to the verified user role in the server, if you qualify')
     async def verify(self, ctx):
         joindate = ctx.author.joined_at
         if datetime.utcnow() > (joindate + timedelta(days=1)):  # One day
