@@ -59,7 +59,7 @@ class Trivia(commands.Cog):
 
         channel = ctx.message.channel_mentions[0].id
 
-        if channel in values:
+        if str(channel) in values:
             return await ctx.send('Channel Already Set!')
 
         values.append(str(channel))
@@ -78,11 +78,11 @@ class Trivia(commands.Cog):
 
         channel = ctx.message.channel_mentions[0].id
 
-        if channel not in values:
+        if str(channel) not in values:
             return await ctx.send('Channel not set!')
 
         for i, j in enumerate(values):
-            if j == channel:
+            if j == str(channel):
                 del values[i]
 
                 self.bot.setConfig('Trivia', 'channels', values)
