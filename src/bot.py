@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-from discord.ext import commands
-import yaml, discord, sys, sqlite3, logging
+from nextcord.ext import commands
+import yaml, nextcord, sys, sqlite3, logging
 
 from cogs.joinleave import JoinLeave
 from cogs.roles import Roles
@@ -49,7 +49,7 @@ class Malcolm(commands.Bot):
         super().run(self.config['API']['token'])
 
 
-intents = discord.Intents()
+intents = nextcord.Intents()
 intents.members = True  # Join/Leave messages
 intents.guild_messages = True  # Trivia
 intents.bans = True  # Ban messages

@@ -1,6 +1,6 @@
 from typing import Tuple, Dict
-from discord.ext import commands
-import discord
+from nextcord.ext import commands
+import nextcord
 from asyncio import sleep, TimeoutError
 from Levenshtein import ratio
 
@@ -36,7 +36,7 @@ class Trivia(commands.Cog):
         ).fetchone()
 
     def tally_scores(
-            self, results: Tuple[discord.User, Tuple[discord.User,
+            self, results: Tuple[nextcord.User, Tuple[nextcord.User,
                                                      ...]]) -> None:
         """Takes a tuple in the format (winner, (loser, loser)) and does the
         needful in the DB"""
@@ -169,7 +169,7 @@ class Trivia(commands.Cog):
     @trivia.command()
     async def top(self, ctx):
         """Sends an embed with the top 5 ranked users in trivia"""
-        embed = discord.Embed(title="Trivia Leaderboard")
+        embed = nextcord.Embed(title="Trivia Leaderboard")
         i = 1
         for leader in self.cur.execute(
                 'SELECT id, rank, losses FROM score ORDER BY rank DESC LIMIT 5'
@@ -183,7 +183,7 @@ class Trivia(commands.Cog):
     @trivia.command()
     async def stats(self, ctx):
         """Returns your trivia win/loss statistics"""
-        embed = discord.Embed(title=f"{ctx.author.name}'s trivia stats")
+        embed = nextcord.Embed(title=f"{ctx.author.name}'s trivia stats")
         stats = self.cur.execute('SELECT rank, losses FROM score WHERE id = ?',
                                  (ctx.author.id, )).fetchone()
         if stats is None:

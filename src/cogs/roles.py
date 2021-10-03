@@ -1,5 +1,5 @@
-from discord.ext import commands
-import discord, logging
+from nextcord.ext import commands
+import nextcord, logging
 
 
 class Roles(commands.Cog):
@@ -23,7 +23,7 @@ class Roles(commands.Cog):
             try:
                 last_msg = await chan.fetch_message(
                     chan.last_message_id)  # Docs say to do it this way
-            except (discord.NotFound, discord.errors.HTTPException):
+            except (nextcord.NotFound, nextcord.errors.HTTPException):
                 last_msg = None
             if last_msg is not None and last_msg.author == self.bot.user:
                 await last_msg.edit(content=msg)
@@ -43,7 +43,7 @@ class Roles(commands.Cog):
 
     @commands.command(usage='@somerole')
     @commands.has_permissions(manage_roles=True)
-    async def roleset(self, ctx, role: discord.Role):
+    async def roleset(self, ctx, role: nextcord.Role):
         """Assigns an emoji to a reaction role"""
         rolechan = self.bot.getConfig('Roles', 'channel')
         # A message can only have 20 reacts, so limit to the first 20 letters
@@ -72,7 +72,7 @@ class Roles(commands.Cog):
 
     @commands.command(usage='@somerole')
     @commands.has_permissions(manage_roles=True)
-    async def rolerm(self, ctx, role: discord.Role):
+    async def rolerm(self, ctx, role: nextcord.Role):
         """Removes a role from the reaction roles list"""
         self.cur.execute('DELETE FROM roles WHERE name=?', (role.name, ))
         self.db.commit()
@@ -89,7 +89,7 @@ class Roles(commands.Cog):
             if payload.message_id == channel.last_message_id:
                 entry = self.cur.execute('SELECT * FROM roles where emoji=?',
                                          (str(payload.emoji), )).fetchone()
-                role = discord.utils.get(guild.roles, name=entry[0])
+                role = nextcord.utils.get(guild.roles, name=entry[0])
                 if not role:
                     logging.error(
                         'User attempted to add role %s which was not found, ignoring',
@@ -107,7 +107,7 @@ class Roles(commands.Cog):
             if payload.message_id == channel.last_message_id:
                 entry = self.cur.execute('SELECT * FROM roles where emoji=?',
                                          (str(payload.emoji), )).fetchone()
-                role = discord.utils.get(guild.roles, name=entry[0])
+                role = nextcord.utils.get(guild.roles, name=entry[0])
                 if not role:
                     logging.error(
                         'User attempted to remove role %s which was not found, ignoring',

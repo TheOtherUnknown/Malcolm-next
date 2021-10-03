@@ -8,10 +8,10 @@ yapf = "*"
 flake8 = "*"
 
 [packages]
-"discord.py" = "*"
 python-levenshtein = "*"
 pytz = "*"
 pyyaml = "*"
+nextcord = "*"
 
 [requires]
 python_version = "3.9"

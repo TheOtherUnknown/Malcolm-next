@@ -1,5 +1,5 @@
-import discord, os, asyncio, random
-from discord.ext import commands
+import nextcord, os, asyncio, random
+from nextcord.ext import commands
 from datetime import datetime, timedelta
 import pytz
 
@@ -37,7 +37,7 @@ class Utils(commands.Cog):
     @commands.command(brief='Information about the bot instance')
     async def info(self, ctx):
         commit = os.popen('git rev-parse --short HEAD').read().strip()
-        embed = discord.Embed(
+        embed = nextcord.Embed(
             title="Malcolm-Next",
             url="https://github.com/TheOtherUnknown/Malcolm-next")
         embed.add_field(name="Running Commit", value=commit,
@@ -57,7 +57,7 @@ class Utils(commands.Cog):
     @commands.command()
     async def roll(self, ctx, roll='1d6'):
         """Rolls a dice"""
-        embed = discord.Embed(title='Dice Rolls')
+        embed = nextcord.Embed(title='Dice Rolls')
         try:
             sides = int(roll.split('d')[1])
             rolls = int(roll.split('d')[0])
@@ -88,7 +88,7 @@ class Utils(commands.Cog):
 
     @commands.command(brief='Displays information about the server')
     async def serverinfo(self, ctx):
-        embed = discord.Embed(title=ctx.guild.name)
+        embed = nextcord.Embed(title=ctx.guild.name)
         if ctx.guild.description is not None:
             embed.description = ctx.guild.description
         embed.add_field(name='Region',
@@ -117,7 +117,7 @@ class Utils(commands.Cog):
                 return
         else:
             user = ctx.author
-        embed = discord.Embed(title=str(user))
+        embed = nextcord.Embed(title=str(user))
         embed.set_thumbnail(url=user.avatar_url)
         create = f"{user.created_at.ctime()}, {(datetime.utcnow() - user.created_at).days} days ago"
         embed.add_field(name='Account created', value=create, inline=False)
@@ -133,7 +133,7 @@ class Utils(commands.Cog):
         joindate = ctx.author.joined_at
         if datetime.utcnow() > (joindate + timedelta(days=1)):  # One day
             await ctx.author.add_roles(
-                discord.utils.get(ctx.guild.roles, name='Verified'))
+                nextcord.utils.get(ctx.guild.roles, name='Verified'))
             await ctx.message.add_reaction('✅')  # Check mark
         else:  # You didn't meet the time :(
             await ctx.send(
@@ -239,7 +239,7 @@ class Utils(commands.Cog):
 
         user = ctx.author  # Get the author for the footer of the embed
 
-        embed = discord.Embed(
+        embed = nextcord.Embed(
             title=f"**__{question}__**"
         )  # Set the title of the embed as the question provided
         embed.set_thumbnail(

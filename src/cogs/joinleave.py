@@ -1,5 +1,5 @@
 import random
-from discord.ext import commands
+from nextcord.ext import commands
 join_msgs = ('Leave your weapons at the door.', 'We just ran out of coffee.',
              "You'll have to be better than that to not be spotted.",
              "Trust the cloak.", "One riot. One Ranger.",
