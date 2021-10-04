@@ -6,6 +6,7 @@ from cogs.joinleave import JoinLeave
 from cogs.roles import Roles
 from cogs.utils import Utils
 from cogs.trivia import Trivia
+from cogs.admin import Admin
 
 
 class Malcolm(commands.Bot):
@@ -72,5 +73,6 @@ bot.add_cog(JoinLeave(bot))
 bot.add_cog(Trivia(bot, db, cur))
 bot.add_cog(Utils(bot))
 bot.add_cog(Roles(bot, db, cur))
+bot.add_cog(Admin(bot))
 
 bot.run()

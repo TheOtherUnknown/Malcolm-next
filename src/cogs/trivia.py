@@ -37,7 +37,7 @@ class Trivia(commands.Cog):
 
     def tally_scores(
             self, results: Tuple[nextcord.User, Tuple[nextcord.User,
-                                                     ...]]) -> None:
+                                                      ...]]) -> None:
         """Takes a tuple in the format (winner, (loser, loser)) and does the
         needful in the DB"""
         self.cur.execute(
