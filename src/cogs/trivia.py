@@ -57,15 +57,15 @@ class Trivia(commands.Cog):
         """
         values = self.bot.getConfig('Trivia', 'channels')
 
-        channel = ctx.message.channel_mentions[0].id
+        channels = ctx.message.channel_mentions
+        if not channels:
+            return
 
-        if str(channel) in values:
-            return await ctx.send('Channel Already Set!')
+        if str(channels[0].id) in values:
+            return await ctx.send('Channel already set!')
 
-        values.append(str(channel))
-
+        values.append(str(channels[0].id))
         self.bot.setConfig('Trivia', 'channels', values)
-
         await ctx.send("Channel set!")
 
     @commands.command(usage="#somechannel")
@@ -75,14 +75,14 @@ class Trivia(commands.Cog):
         Remove channels designated for the trivia game
         """
         values = self.bot.getConfig('Trivia', 'channels')
-
-        channel = ctx.message.channel_mentions[0].id
-
-        if str(channel) not in values:
+        # Make sure ctx.message.channel_mentions isn't null
+        # For example, if user doesn't specify a channel
+        channels = ctx.message.channel_mentions
+        if not channels or str(channels[0].id) not in values:
             return await ctx.send('Channel not set!')
 
         for i, j in enumerate(values):
-            if j == str(channel):
+            if j == str(channels[0].id):
                 del values[i]
 
                 self.bot.setConfig('Trivia', 'channels', values)
