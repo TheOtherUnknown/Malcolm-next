@@ -6,7 +6,7 @@ class Admin(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(brief='Create polls using embeds and reactions',
+    @commands.command(help='Create polls using embeds and reactions',
                       usage="\"question\" \"answers 1-9\"")
     @commands.has_permissions(manage_messages=True)
     # Only people who can manage messages can use this
@@ -45,13 +45,13 @@ class Admin(commands.Cog):
         for x in range(len(args)):
             await msg.add_reaction(reactions[x])
 
-    @commands.command(brief='Bans a user from the server', usage='@someone')
+    @commands.command(help='Bans a user from the server', usage='@someone')
     @commands.has_permissions(ban_members=True)
     async def kb(self, ctx):
         user = ctx.message.mentions[0]  # Get the first mentioned user
         await ctx.guild.ban(user, reason=f"Banned via command by {ctx.author}")
 
-    @commands.command(brief="Kicks a mentioned user from the server",
+    @commands.command(help="Kicks a mentioned user from the server",
                       usage="@someone")
     @commands.has_permissions(kick_members=True)
     async def kick(self, ctx):
@@ -60,7 +60,7 @@ class Admin(commands.Cog):
             await ctx.guild.kick(user,
                                  reason=f"Kicked via command by {ctx.author}")
 
-    @commands.command(brief='Mass-deletes messages in the current channel',
+    @commands.command(help='Mass-deletes messages in the current channel',
                       usage='<NUMBER>')
     @commands.has_permissions(manage_messages=True)
     async def nuke(self, ctx, num):

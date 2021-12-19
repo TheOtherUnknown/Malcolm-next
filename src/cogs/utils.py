@@ -34,7 +34,7 @@ class Utils(commands.Cog):
                     selected = line
         await ctx.send(selected.strip())
 
-    @commands.command(brief='Information about the bot instance')
+    @commands.command(help='Information about the bot instance')
     async def info(self, ctx):
         commit = os.popen('git rev-parse --short HEAD').read().strip()
         embed = nextcord.Embed(
@@ -86,7 +86,7 @@ class Utils(commands.Cog):
         embed.set_footer(text=f"Total: {total}")
         await ctx.send(embed=embed)
 
-    @commands.command(brief='Displays information about the server')
+    @commands.command(help='Displays information about the server')
     async def serverinfo(self, ctx):
         embed = nextcord.Embed(title=ctx.guild.name)
         if ctx.guild.description is not None:
@@ -103,7 +103,7 @@ class Utils(commands.Cog):
         embed.set_footer(text=f"ID: {ctx.guild.id}")
         await ctx.send(embed=embed)
 
-    @commands.command(brief='Displays information about users')
+    @commands.command(help='Displays information about users')
     async def userinfo(self, ctx, userid=None):
         if ctx.message.mentions:
             user = ctx.message.mentions[0]
@@ -125,7 +125,7 @@ class Utils(commands.Cog):
         await ctx.send(embed=embed)
 
     @commands.command(
-        brief='Add yourself to the verified user role in the server, if you qualify')
+        help='Add yourself to the verified user role in the server, if you qualify')
     async def verify(self, ctx):
         joindate = ctx.author.joined_at
         if datetime.utcnow() > (joindate + timedelta(days=1)):  # One day

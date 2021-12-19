@@ -7,7 +7,7 @@ from cogs.roles import Roles
 from cogs.utils import Utils
 from cogs.trivia import Trivia
 from cogs.admin import Admin
-
+from core.malcomhelp import MalcolmHelp
 
 class Malcolm(commands.Bot):
     """An extension of discord.ext.commands.Bot with configuration
@@ -15,14 +15,12 @@ class Malcolm(commands.Bot):
     def __init__(self,
                  command_prefix,
                  configpath: str,
-                 help_command=commands.DefaultHelpCommand(),
                  description=None,
                  **options):
         self.configpath = configpath
         conf_file = open(configpath)
         self.config = yaml.safe_load(conf_file)
         super().__init__(command_prefix,
-                         help_command=help_command,
                          description=description,
                          **options)
 
@@ -74,5 +72,7 @@ bot.add_cog(Trivia(bot, db, cur))
 bot.add_cog(Utils(bot))
 bot.add_cog(Roles(bot, db, cur))
 bot.add_cog(Admin(bot))
+
+bot.help_command = MalcolmHelp()
 
 bot.run()
