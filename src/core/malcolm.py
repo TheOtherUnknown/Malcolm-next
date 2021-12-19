@@ -15,7 +15,10 @@ class Malcolm(commands.Bot):
         self.configpath = configpath
         conf_file = open(configpath)
         self.config = yaml.safe_load(conf_file)
-        super().__init__(command_prefix, description=description, **options)
+        super().__init__(command_prefix,
+                         description=description,
+                         help_command=help_command,
+                         **options)
 
     def getConfig(self, section: str, item: str) -> str:
         """Returns a String value from the bot's config file"""
