@@ -1,5 +1,5 @@
 from nextcord.ext import commands
-from malcomhelp import MalcolmHelp
+from core.help import MalcolmHelp
 import yaml
 
 
