@@ -98,8 +98,8 @@ class Utils(commands.Cog):
         cdate = ctx.guild.created_at
         embed.add_field(
             name='Creation date',
-            value=f"{cdate.ctime()}, {(datetime.utcnow() - cdate).days} days ago")
-        embed.set_thumbnail(url=ctx.guild.icon_url)
+            value=f"{cdate.ctime()}, {(datetime.now(pytz.UTC) - cdate).days} days ago")
+        embed.set_thumbnail(url=ctx.guild.icon.url)
         embed.set_footer(text=f"ID: {ctx.guild.id}")
         await ctx.send(embed=embed)
 
@@ -115,10 +115,10 @@ class Utils(commands.Cog):
         else:
             user = ctx.author
         embed = nextcord.Embed(title=str(user))
-        embed.set_thumbnail(url=user.avatar_url)
-        create = f"{user.created_at.ctime()}, {(datetime.utcnow() - user.created_at).days} days ago"
+        embed.set_thumbnail(url=user.display_avatar.url)
+        create = f"{user.created_at.ctime()}, {(datetime.now(pytz.UTC) - user.created_at).days} days ago"
         embed.add_field(name='Account created', value=create, inline=False)
-        join = f"{user.joined_at.ctime()}, {(datetime.utcnow() - user.joined_at).days} days ago"
+        join = f"{user.joined_at.ctime()}, {(datetime.now(pytz.UTC) - user.joined_at).days} days ago"
         embed.add_field(name="Join date", value=join, inline=False)
         embed.add_field(name="Roles", value=role_list(user), inline=False)
         embed.set_footer(text=f"ID: {user.id}")
@@ -128,7 +128,7 @@ class Utils(commands.Cog):
         help='Add yourself to the verified user role in the server, if you qualify')
     async def verify(self, ctx):
         joindate = ctx.author.joined_at
-        if datetime.utcnow() > (joindate + timedelta(days=1)):  # One day
+        if datetime.now(pytz.UTC) > (joindate + timedelta(days=1)):  # One day
             await ctx.author.add_roles(
                 nextcord.utils.get(ctx.guild.roles, name='Verified'))
             await ctx.message.add_reaction('✅')  # Check mark
