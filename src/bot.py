@@ -5,6 +5,7 @@ import nextcord, sys, sqlite3, logging
 from cogs.joinleave import JoinLeave
 from cogs.roles import Roles
 from cogs.utils import Utils
+from cogs.fun import Fun
 from cogs.trivia import Trivia
 from cogs.admin import Admin
 
@@ -32,5 +33,6 @@ bot.add_cog(Trivia(bot, db, cur))
 bot.add_cog(Utils(bot))
 bot.add_cog(Roles(bot, db, cur))
 bot.add_cog(Admin(bot))
+bot.add_cog(Fun(bot))
 
 bot.run()
