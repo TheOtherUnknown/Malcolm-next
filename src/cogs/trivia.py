@@ -170,13 +170,22 @@ class Trivia(commands.Cog):
     async def top(self, ctx):
         """Sends an embed with the top 5 ranked users in trivia"""
         embed = nextcord.Embed(title="Trivia Leaderboard")
+        winner = 0  # Declare a variable in function scope to hold the amount of losses of the person in first place
         i = 1
         for leader in self.cur.execute(
                 'SELECT id, rank, losses FROM score ORDER BY rank DESC LIMIT 5'
         ):
-            embed.add_field(name=f"{i}. {self.bot.get_user(leader[0]).name}",
-                            value=f"{leader[1]} wins, {leader[2]} losses",
-                            inline=False)
+            if i == 1:
+                winner = leader[2]  # If the person is the first, then use the winner variable
+            if i == 2 and leader[2] == winner:  # If the person in second has the same amount of wins and losses as the person in first then they should be ranked equally
+                embed.add_field(name=f"1. {self.bot.get_user(leader[0]).name}",
+                                value=f"{leader[1]} wins, {leader[2]} losses",
+                                inline=False)
+            else:
+                embed.add_field(name=f"{i}. {self.bot.get_user(leader[0]).name}",
+                                value=f"{leader[1]} wins, {leader[2]} losses",
+                                inline=False)
+
             i += 1
         await ctx.send(embed=embed)
 
