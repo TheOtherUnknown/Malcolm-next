@@ -172,7 +172,7 @@ class Trivia(commands.Cog):
         embed = nextcord.Embed(title="Trivia Leaderboard")
         i = 1
         for leader in self.cur.execute(
-                'SELECT id, rank, losses FROM score ORDER BY rank DESC, losses ASC LIMIT 5' # Sort by both rank and losses. If the ranks are equal then the person with less losses should be ranked higher
+                'SELECT id, rank, losses FROM score ORDER BY rank DESC, losses ASC LIMIT 5'  # Sort by both rank and losses. If the ranks are equal then the person with less losses should be ranked higher
         ):
             embed.add_field(name=f"{i}. {self.bot.get_user(leader[0]).name}",
                             value=f"{leader[1]} wins, {leader[2]} losses",
