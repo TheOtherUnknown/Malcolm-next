@@ -170,23 +170,29 @@ class Trivia(commands.Cog):
     async def top(self, ctx):
         """Sends an embed with the top 5 ranked users in trivia"""
         embed = nextcord.Embed(title="Trivia Leaderboard")
-        winner = 0  # Declare a variable in function scope to hold the amount of losses of the person in first place
+        last = ()  # Declare a tuple in function scope to hold the amount of wins and losses of the last person checked
         i = 1
         for leader in self.cur.execute(
                 'SELECT id, rank, losses FROM score ORDER BY rank DESC LIMIT 5'
         ):
-            if i == 1:
-                winner = leader[2]  # If the person is the first, then use the winner variable
-            if i == 2 and leader[2] == winner:  # If the person in second has the same amount of wins and losses as the person in first then they should be ranked equally
-                embed.add_field(name=f"1. {self.bot.get_user(leader[0]).name}",
-                                value=f"{leader[1]} wins, {leader[2]} losses",
-                                inline=False)
+            if i != 1:  # As long as it's not the first person to be checked continue
+                if (leader[1], leader[2]) == last:  # If the wins and losses are equal to the last person check they should be ranked equally
+                    embed.add_field(name=f"{i-1}. {self.bot.get_user(leader[0]).name}",
+                                    value=f"{leader[1]} wins, {leader[2]} losses",
+                                    inline=False)
+
+                else:  # If wins and losses aren't equal, then rank them normally
+                    embed.add_field(name=f"{i}. {self.bot.get_user(leader[0]).name}",
+                                    value=f"{leader[1]} wins, {leader[2]} losses",
+                                    inline=False)
             else:
-                embed.add_field(name=f"{i}. {self.bot.get_user(leader[0]).name}",
+                last = (leader[1], leader[2])
+                embed.add_field(name=f"1. {self.bot.get_user(leader[0]).name}",
                                 value=f"{leader[1]} wins, {leader[2]} losses",
                                 inline=False)
 
             i += 1
+            last = (leader[1], leader[2])  # While still in the current iteration assign the last variable
         await ctx.send(embed=embed)
 
     @trivia.command()
