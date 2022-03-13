@@ -12,6 +12,3 @@ python-levenshtein = "*"
 pytz = "*"
 pyyaml = "*"
 nextcord = "*"
-
-[requires]
-python_version = "3.9"
