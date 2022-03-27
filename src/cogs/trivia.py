@@ -8,6 +8,7 @@ locked_channels = []  # Channel IDs that are currently in use by a game
 
 
 class Trivia(commands.Cog):
+
     def __init__(self, bot, db, cur):
         self.bot = bot
         self.db = db
@@ -170,19 +171,25 @@ class Trivia(commands.Cog):
     async def top(self, ctx):
         """Sends an embed with the top 5 ranked users in trivia"""
         embed = nextcord.Embed(title="Trivia Leaderboard")
-        last = {}  # Declare a dictionary in function scope to hold the amount of wins and losses of the last person checked
+        last = {
+        }  # Declare a dictionary in function scope to hold the amount of wins and losses of the last person checked
         i = 0
         for leader in self.cur.execute(
                 'SELECT id, rank, losses FROM score ORDER BY rank DESC LIMIT 5'
         ):
-            if leader[1] != last.get('rank') and leader[2] != last.get('losses'):  # If the wins and losses are not equal to the last person checked then the place number should increase
+            if leader[1] != last.get('rank') and leader[2] != last.get(
+                    'losses'
+            ):  # If the wins and losses are not equal to the last person checked then the place number should increase
                 i += 1
 
             embed.add_field(name=f"{i}. {self.bot.get_user(leader[0]).name}",
                             value=f"{leader[1]} wins, {leader[2]} losses",
                             inline=False)
 
-            last = {'rank': leader[1], 'losses': leader[2]}  # While still in the current iteration assign the last variable
+            last = {
+                'rank': leader[1],
+                'losses': leader[2]
+            }  # While still in the current iteration assign the last variable
         await ctx.send(embed=embed)
 
     @trivia.command()
