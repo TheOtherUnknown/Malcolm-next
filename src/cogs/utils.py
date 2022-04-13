@@ -1,7 +1,7 @@
 import nextcord, os
 from nextcord.ext import commands
 from datetime import datetime, timedelta
-import pytz
+import zoneinfo
 
 
 # Helper methods
@@ -90,10 +90,10 @@ class Utils(commands.Cog):
             )
 
     @commands.command(
-        usage="[time] [am/pm] [original timezone] [timezone to convert to]")
-    async def time(self, ctx, utime, apm, ozone, nzone):
+        usage="[time][am/pm] [original timezone] [timezone to convert to]")
+    async def time(self, ctx, utime, ozone, nzone):
         """Converts times from one timezone to another. For a list of timezones see: https://github.com/TheOtherUnknown/Malcolm-next/wiki/Commands#time"""
-        tformat = '%I:%M %p'
+        tformat = '%I:%M%p'
 
         def convert_tz(timezone: str):
             # Convert the user given timezone into a valid pytz timezone
@@ -147,17 +147,15 @@ class Utils(commands.Cog):
             else:
                 timezone = 'Universal'
 
-            return pytz.timezone(timezone)
+            return zoneinfo.ZoneInfo(timezone)
 
         nzone = convert_tz(nzone)
         ozone = convert_tz(ozone)
         try:
-            # This should make us DST aware... Maybe
-            utime = datetime.strptime(f"{utime} {apm}", tformat)
-            utime = ozone.localize(
-                datetime.combine(date=datetime.today(), time=utime.time()))
+            utime = datetime.strptime(utime, tformat)
+            utime = datetime.combine(date=datetime.today(), time=utime.time())
         except ValueError:
-            await ctx.send('Couldn\'t parse that time, see ,help time')
+            await ctx.send('Couldn\'t parse that time, see `,help time`')
             return
 
         otime = datetime.strftime(utime, tformat)
