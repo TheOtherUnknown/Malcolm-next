@@ -1,6 +1,6 @@
 from typing import Tuple, Dict
 from nextcord.ext import commands
-import nextcord
+import nextcord, sqlite3
 from asyncio import sleep, TimeoutError
 from Levenshtein import ratio
 
@@ -13,6 +13,7 @@ class Trivia(commands.Cog):
         self.bot = bot
         self.db = db
         self.cur = cur
+        self.last_add = None  # The last question that was added via trivia add
 
     # Helper methods
     # Dict[int,int] Is replaced in 3.8
@@ -94,7 +95,7 @@ class Trivia(commands.Cog):
         description='An RA themed competitive trivia game, with scoreboard.')
     async def trivia(self, ctx):
         if ctx.invoked_subcommand is None:
-            await ctx.send('Trivia what? Use `,trivia start|top|stats`')
+            await ctx.send('Trivia what? Use `,trivia add|start|top|stats`')
 
     @trivia.command(usage="[points]")
     async def start(self, ctx, goal=5):
@@ -217,3 +218,60 @@ class Trivia(commands.Cog):
         pipe |"""
         items = arg.split('|')
         await ctx.send(round(self.get_dist(items[0], items[1]), 2))
+
+    @trivia.command()
+    async def add(self, ctx):
+        """Adds a new question to the database"""
+        senderscore = self.cur.execute('SELECT rank FROM score WHERE id = ?',
+                                       (ctx.author.id, )).fetchone()
+
+        def check(message: nextcord.Message) -> bool:
+            """Predicate function to ensure the same user responds
+            in the same channel"""
+            return message.channel == ctx.channel and ctx.author == message.author
+
+        if senderscore is not None and senderscore[0] > 24:
+            try:
+                await ctx.send('Enter the question to add: ')
+                question = await self.bot.wait_for('message',
+                                                   check=check,
+                                                   timeout=60.0)
+                await ctx.send('Enter the answer: ')
+                answer = await self.bot.wait_for('message',
+                                                 check=check,
+                                                 timeout=60.0)
+            except TimeoutError:
+                await ctx.send('Timed out, quitting...')
+                return
+            try:
+                self.cur.execute('INSERT INTO trivia VALUES(?,?,?)',
+                                 (question.clean_content, answer.clean_content,
+                                  ctx.author.id))
+                self.db.commit()
+            except sqlite3.IntegrityError:
+                # UNIQUE contraint violated or other problem
+                await ctx.send(
+                    'That question is too similar to another, try something else'
+                )
+                self.db.rollback()
+            # We added a question! Send success message
+            await ctx.send('Question was added!')
+            self.last_add = question.clean_content
+        else:
+            # We don't meet the precondition, send an error
+            await ctx.send(
+                'You need at least 25 trivia wins to add questions, try again later!'
+            )
+
+    @trivia.command()
+    @commands.has_permissions(manage_messages=True)
+    async def undo(self, ctx):
+        """Removes the last added question"""
+        if self.last_add is None:
+            await ctx.send('No questions to be removed')
+            return
+        self.cur.execute('DELETE FROM trivia WHERE question=?',
+                         (self.last_add, ))
+        self.db.commit()
+        self.last_add = None
+        await ctx.send('Last question was removed')
