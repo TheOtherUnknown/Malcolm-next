@@ -3,6 +3,7 @@ import nextcord, logging
 
 
 class Roles(commands.Cog):
+
     def __init__(self, bot, db, cur):
         self.bot = bot
         self.db = db
@@ -89,11 +90,12 @@ class Roles(commands.Cog):
             if payload.message_id == channel.last_message_id:
                 entry = self.cur.execute('SELECT * FROM roles where emoji=?',
                                          (str(payload.emoji), )).fetchone()
-                role = nextcord.utils.get(guild.roles, name=entry[0])
-                if not role:
+                try:
+                    role = nextcord.utils.get(guild.roles, name=entry[0])
+                except TypeError:
                     logging.error(
-                        'User attempted to add role %s which was not found, ignoring',
-                        entry[1])
+                        'User attempted add role/react which was not found, ignoring'
+                    )
                     return
                 await payload.member.add_roles(role)
 
