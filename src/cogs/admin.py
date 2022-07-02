@@ -69,7 +69,7 @@ class Admin(commands.Cog):
                 num
             )  # Num can't be >100. That needs to be checked at some point
             async for message in ctx.channel.history(limit=num):
-                message.delete()
+                await message.delete()
             await asyncio.sleep(
                 1.2)  # Sleep for a bit so everything gets deleted on time
 
