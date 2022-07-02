@@ -45,21 +45,6 @@ class Admin(commands.Cog):
         for x in range(len(args)):
             await msg.add_reaction(reactions[x])
 
-    @commands.command(help='Bans a user from the server', usage='@someone')
-    @commands.has_permissions(ban_members=True)
-    async def kb(self, ctx):
-        user = ctx.message.mentions[0]  # Get the first mentioned user
-        await ctx.guild.ban(user, reason=f"Banned via command by {ctx.author}")
-
-    @commands.command(help="Kicks a mentioned user from the server",
-                      usage="@someone")
-    @commands.has_permissions(kick_members=True)
-    async def kick(self, ctx):
-        if ctx.message.mentions[0] is not None:
-            user = ctx.message.mentions[0]
-            await ctx.guild.kick(user,
-                                 reason=f"Kicked via command by {ctx.author}")
-
     @commands.command(help='Mass-deletes messages in the current channel',
                       usage='<NUMBER>')
     @commands.has_permissions(manage_messages=True)
