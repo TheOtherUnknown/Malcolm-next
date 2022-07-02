@@ -15,6 +15,7 @@ intents.guild_messages = True  # Trivia
 intents.bans = True  # Ban messages
 intents.guilds = True  # Docs says so
 intents.guild_reactions = True  # For roles
+intents.message_content = True  # Needed for commands now :(
 
 db = sqlite3.connect('data/malcolm.db')
 cur = db.cursor()
