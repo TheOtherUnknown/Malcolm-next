@@ -7,9 +7,9 @@ class Fun(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @nextcord.slash_command(
-        description="Convenient solutions to inconvenient tech problems")
+    @nextcord.slash_command()
     async def bofh(self, inter: nextcord.Interaction):
+        """Convenient solutions to inconvenient tech problems"""
         # https://stackoverflow.com/questions/14924721/how-to-choose-a-random-line-from-a-text-file#14924739
         line_num = 0
         selected = ""
@@ -23,11 +23,12 @@ class Fun(commands.Cog):
                     selected = line
         await inter.send(selected.strip())
 
-    @nextcord.slash_command(description="Rolls a dice")
+    @nextcord.slash_command()
     async def roll(self,
                    inter: nextcord.Interaction,
                    roll: str = nextcord.SlashOption(
                        description="NUMdSIDE dice to roll", default="1d6")):
+        """Rolls a dice"""
         embed = nextcord.Embed(title="Dice Rolls")
         try:
             sides = int(roll.split("d")[1])

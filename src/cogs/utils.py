@@ -20,8 +20,9 @@ class Utils(commands.Cog):
         self.bot = bot
         self.UTC = zoneinfo.ZoneInfo('UTC')
 
-    @commands.command(help='Information about the bot instance')
-    async def info(self, ctx):
+    @nextcord.slash_command()
+    async def info(self, inter: nextcord.Interaction):
+        """Information about the bot instance"""
         commit = os.popen('git rev-parse --short HEAD').read().strip()
         embed = nextcord.Embed(
             title="Malcolm-Next",
@@ -32,43 +33,46 @@ class Utils(commands.Cog):
                         value=(len(self.bot.guilds)),
                         inline=False)
         embed.add_field(name="Owner", value=self.bot.owner_id, inline=False)
-        await ctx.send(embed=embed)
+        await inter.send(embed=embed)
 
-    @commands.command()
-    async def ping(self, ctx):
+    @nextcord.slash_command()
+    async def ping(self, inter: nextcord.Interaction):
         """Displays latency between client and bot"""
         latency = round(self.bot.latency * 1000, 2)
-        return await ctx.send('Pong! ' + str(latency) + 'ms')
+        return await inter.send('Pong! ' + str(latency) + 'ms')
 
-    @commands.command(help='Displays information about the server')
-    async def serverinfo(self, ctx):
-        embed = nextcord.Embed(title=ctx.guild.name)
-        if ctx.guild.description is not None:
-            embed.description = ctx.guild.description
+    @nextcord.slash_command(dm_permission=False)
+    async def serverinfo(self, inter: nextcord.Interaction):
+        """Displays information about the server"""
+        embed = nextcord.Embed(title=inter.guild.name)
+        if inter.guild.description is not None:
+            embed.description = inter.guild.description
         embed.add_field(name='Members',
-                        value=str(ctx.guild.member_count),
+                        value=str(inter.guild.member_count),
                         inline=True)
-        embed.add_field(name='Owner', value=ctx.guild.owner.name, inline=True)
-        cdate = ctx.guild.created_at
+        embed.add_field(name='Owner',
+                        value=inter.guild.owner.name,
+                        inline=True)
+        cdate = inter.guild.created_at
         embed.add_field(
             name='Creation date',
             value=f"{cdate.ctime()}, {(datetime.now(self.UTC) - cdate).days} days ago"
         )
-        embed.set_thumbnail(url=ctx.guild.icon.url)
-        embed.set_footer(text=f"ID: {ctx.guild.id}")
-        await ctx.send(embed=embed)
+        embed.set_thumbnail(url=inter.guild.icon.url)
+        embed.set_footer(text=f"ID: {inter.guild.id}")
+        await inter.send(embed=embed)
 
-    @commands.command(help='Displays information about users')
-    async def userinfo(self, ctx, userid=None):
-        if ctx.message.mentions:
-            user = ctx.message.mentions[0]
-        elif userid:
-            user = ctx.guild.get_member(int(userid))
-            if not user:
-                await ctx.send("Cannot find user with that ID!")
-                return
+    @nextcord.slash_command(dm_permission=False)
+    async def userinfo(self,
+                       inter: nextcord.Interaction,
+                       userid: nextcord.Member = nextcord.SlashOption(
+                           description="ID or @user to check", default=None)):
+        """Displays information about users"""
+        if userid:
+            # The library guarantees that if userid isn't none, it is a Member
+            user = userid
         else:
-            user = ctx.author
+            user = inter.user
         embed = nextcord.Embed(title=str(user))
         embed.set_thumbnail(url=user.display_avatar.url)
         create = f"{user.created_at.ctime()}, {(datetime.now(self.UTC) - user.created_at).days} days ago"
@@ -77,25 +81,32 @@ class Utils(commands.Cog):
         embed.add_field(name="Join date", value=join, inline=False)
         embed.add_field(name="Roles", value=role_list(user), inline=False)
         embed.set_footer(text=f"ID: {user.id}")
-        await ctx.send(embed=embed)
+        await inter.send(embed=embed)
 
-    @commands.command(
-        help='Add yourself to the verified user role in the server, if you qualify')
-    async def verify(self, ctx):
-        joindate = ctx.author.joined_at
+    @nextcord.slash_command()
+    async def verify(self, inter: nextcord.Interaction):
+        """Add yourself to the verified user role in the server, if you qualify"""
+        joindate = inter.user.joined_at
         if datetime.now(self.UTC) > (joindate + timedelta(days=1)):  # One day
-            await ctx.author.add_roles(
-                nextcord.utils.get(ctx.guild.roles, name='Verified'))
-            await ctx.message.add_reaction('✅')  # Check mark
+            await inter.user.add_roles(
+                nextcord.utils.get(inter.guild.roles, name='Verified'))
+            await inter.send('✅')  # Check mark
         else:  # You didn't meet the time :(
-            await ctx.send(
+            await inter.send(
                 'You don\'t qualify to be verified yet! Check back 24 hours after you join.'
             )
 
-    @commands.command(
-        usage="[time][am/pm] [original timezone] [timezone to convert to]")
-    async def time(self, ctx, utime, ozone, nzone):
-        """Converts times from one timezone to another. For a list of timezones see: https://github.com/TheOtherUnknown/Malcolm-next/wiki/Commands#time"""
+    @nextcord.slash_command()
+    async def time(
+        self,
+        inter: nextcord.Interaction,
+        org_time: str = nextcord.SlashOption(
+            required=True, description="The time to convert"),
+        org_zone: str = nextcord.SlashOption(required=True,
+                                             description="Original timezone"),
+        new_zone: str = nextcord.SlashOption(required=True,
+                                             description="New timezone")):
+        """Converts times between timezones. For a list of zones see: https://is.gd/4Q98XQ"""
         tformat = '%I:%M%p'
 
         def convert_tz(timezone: str):
@@ -152,15 +163,15 @@ class Utils(commands.Cog):
 
             return zoneinfo.ZoneInfo(timezone)
 
-        nzone = convert_tz(nzone)
-        ozone = convert_tz(ozone)
+        new_zone = convert_tz(new_zone)
+        org_zone = convert_tz(org_zone)
         try:
-            utime = datetime.strptime(utime, tformat)
+            utime = datetime.strptime(org_time, tformat)
             utime = datetime.combine(date=datetime.today(), time=utime.time())
         except ValueError:
-            await ctx.send('Couldn\'t parse that time, see `,help time`')
+            await inter.send('Couldn\'t parse that time, see `,help time`')
             return
 
-        otime = datetime.strftime(utime, tformat)
-        ntime = datetime.strftime(utime.astimezone(nzone), tformat)
-        await ctx.send(f"{otime} {ozone} is {ntime} {nzone}")
+        org_time = datetime.strftime(utime, tformat)
+        ntime = datetime.strftime(utime.astimezone(new_zone), tformat)
+        await inter.send(f"{org_time} {org_zone} is {ntime} {new_zone}")
