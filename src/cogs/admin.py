@@ -3,60 +3,27 @@ import nextcord, asyncio
 
 
 class Admin(commands.Cog):
+
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(help='Create polls using embeds and reactions',
-                      usage="\"question\" \"answers 1-9\"")
+    @nextcord.slash_command(
+        dm_permission=False,
+        default_member_permissions=nextcord.Permissions(manage_messages=True))
     @commands.has_permissions(manage_messages=True)
-    # Only people who can manage messages can use this
-    async def poll(self, ctx, question, *args):
-        """
-        Create embed polls with one question and up to 9 responses.
-        """
-        # Curernt max amount of answers is 9 as there are only 9 digit reactions
-
-        if len(args) > 9:
-            return await ctx.send(
-                "You have provided more than nine choices; therefore, the poll was not sent"
-            )
-
-        reactions = [
-            '1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣'
-        ]  # A list of all the reactions that could be added
-
-        user = ctx.author  # Get the author for the footer of the embed
-
-        embed = nextcord.Embed(
-            title=f"**__{question}__**"
-        )  # Set the title of the embed as the question provided
-        embed.set_thumbnail(
-            url=user.avatar_url
-        )  # Set the thumbnail as the authors discord profile picture
-        embed.set_author(
-            name=user
-        )  # Set the author of the embed as the person who sent the command
-
-        for i, j in enumerate(args, 1):
-            embed.add_field(name=str(i), value=str(j))
-
-        msg = await ctx.send(embed=embed)
-
-        for x in range(len(args)):
-            await msg.add_reaction(reactions[x])
-
-    @commands.command(help='Mass-deletes messages in the current channel',
-                      usage='<NUMBER>')
-    @commands.has_permissions(manage_messages=True)
-    async def nuke(self, ctx, num):
-        if num is not None:
-            num = int(
-                num
-            )  # Num can't be >100. That needs to be checked at some point
-            async for message in ctx.channel.history(limit=num):
-                await message.delete()
-            await asyncio.sleep(
-                1.2)  # Sleep for a bit so everything gets deleted on time
+    async def nuke(self,
+                   inter: nextcord.Interaction,
+                   num: int = nextcord.SlashOption(
+                       required=True,
+                       min_value=5,
+                       max_value=200,
+                       description='Number of messages to delete')):
+        """Mass-deletes messages in the current channel"""
+        # Num can't be >100. That needs to be checked at some point
+        async for message in inter.channel.history(limit=num):
+            await message.delete()
+        await asyncio.sleep(
+            1.2)  # Sleep for a bit so everything gets deleted on time
 
     # == START OWNER COMMANDS == #
     @commands.command(hidden=True)

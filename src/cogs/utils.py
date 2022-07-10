@@ -83,6 +83,11 @@ class Utils(commands.Cog):
         embed.set_footer(text=f"ID: {user.id}")
         await inter.send(embed=embed)
 
+    @nextcord.user_command(name='Show userinfo')
+    async def userinfo_submenu(self, inter: nextcord.Interaction,
+                               member: nextcord.Member):
+        await self.userinfo(inter, member)
+
     @nextcord.slash_command()
     async def verify(self, inter: nextcord.Interaction):
         """Add yourself to the verified user role in the server, if you qualify"""
