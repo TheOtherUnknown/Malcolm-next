@@ -136,7 +136,7 @@ class Trivia(commands.Cog):
         for leader in self.cur.execute(
                 'SELECT id, rank, losses FROM score ORDER BY rank DESC, losses ASC LIMIT 5'  # Sort by both rank and losses. If the ranks are equal then the person with less losses should be ranked higher
         ):
-            if leader[1] != last.get('rank') and leader[2] != last.get(
+            if leader[1] != last.get('rank') or leader[2] != last.get(
                     'losses'
             ):  # If the wins and losses are not equal to the last person checked then the place number should increase
                 i += 1
