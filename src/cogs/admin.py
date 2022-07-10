@@ -1,4 +1,4 @@
-from nextcord.ext import commands
+from nextcord.ext import commands, application_checks
 import nextcord, asyncio
 
 
@@ -7,10 +7,8 @@ class Admin(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @nextcord.slash_command(
-        dm_permission=False,
-        default_member_permissions=nextcord.Permissions(manage_messages=True))
-    @commands.has_permissions(manage_messages=True)
+    @nextcord.slash_command(dm_permission=False)
+    @application_checks.has_permissions(manage_messages=True)
     async def nuke(self,
                    inter: nextcord.Interaction,
                    num: int = nextcord.SlashOption(

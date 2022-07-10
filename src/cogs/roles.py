@@ -1,4 +1,4 @@
-from nextcord.ext import commands
+from nextcord.ext import commands, application_checks
 import nextcord, logging
 
 
@@ -31,9 +31,8 @@ class Roles(commands.Cog):
             else:  # Otherwise, send a new message
                 await chan.send(content=msg)
 
-    @nextcord.slash_command(
-        dm_permission=False,
-        default_member_permissions=nextcord.Permissions(manage_roles=True))
+    @nextcord.slash_command(dm_permission=False)
+    @application_checks.has_permissions(manage_roles=True)
     async def rolechan(
         self,
         inter: nextcord.Interaction,
@@ -49,7 +48,7 @@ class Roles(commands.Cog):
         await inter.send('Channel set!')
 
     @nextcord.slash_command(dm_permission=False)
-    @commands.has_permissions(manage_roles=True)
+    @application_checks.has_permissions(manage_roles=True)
     async def roleset(self,
                       inter: nextcord.Interaction,
                       role: nextcord.Role = nextcord.SlashOption(
@@ -85,7 +84,7 @@ class Roles(commands.Cog):
         await inter.send('Role set!')
 
     @nextcord.slash_command(dm_permission=False)
-    @commands.has_permissions(manage_roles=True)
+    @application_checks.has_permissions(manage_roles=True)
     async def rolerm(self,
                      inter: nextcord.Interaction,
                      role: nextcord.Role = nextcord.SlashOption(
