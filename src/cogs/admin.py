@@ -24,8 +24,8 @@ class Admin(commands.Cog):
             1.2)  # Sleep for a bit so everything gets deleted on time
 
     # == START OWNER COMMANDS == #
-    @commands.command(hidden=True)
-    @commands.is_owner()
-    async def quit(self, ctx):
-        await ctx.send('Malcolm is going down NOW!')
+    @nextcord.slash_command()
+    @application_checks.is_owner()
+    async def quit(self, inter: nextcord.Interaction):
+        await inter.send('Malcolm is going down NOW!')
         raise SystemExit
