@@ -3,11 +3,13 @@ from nextcord.ext import commands
 
 
 class Fun(commands.Cog):
+
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(help="Convenient solutions to inconvenient tech problems")
-    async def bofh(self, ctx):
+    @nextcord.slash_command()
+    async def bofh(self, inter: nextcord.Interaction):
+        """Convenient solutions to inconvenient tech problems"""
         # https://stackoverflow.com/questions/14924721/how-to-choose-a-random-line-from-a-text-file#14924739
         line_num = 0
         selected = ""
@@ -19,16 +21,20 @@ class Fun(commands.Cog):
                 line_num += 1
                 if random.uniform(0, line_num) < 1:
                     selected = line
-        await ctx.send(selected.strip())
+        await inter.send(selected.strip())
 
-    @commands.command(help="Rolls a dice")
-    async def roll(self, ctx, roll="1d6"):
+    @nextcord.slash_command()
+    async def roll(self,
+                   inter: nextcord.Interaction,
+                   roll: str = nextcord.SlashOption(
+                       description="NUMdSIDE dice to roll", default="1d6")):
+        """Rolls a dice"""
         embed = nextcord.Embed(title="Dice Rolls")
         try:
             sides = int(roll.split("d")[1])
             rolls = int(roll.split("d")[0])
         except Exception:
-            await ctx.send(
+            await inter.send(
                 "Wrong format, the commands format is `[number of rolls]d[number of sides]` eg.(1d5, or 10d45)"
             )
             return
@@ -50,4 +56,4 @@ class Fun(commands.Cog):
             total += val
             embed.add_field(name=f"Dice  #{x + 1}", value=val)
         embed.set_footer(text=f"Total: {total}")
-        await ctx.send(embed=embed)
+        await inter.send(embed=embed)

@@ -1,14 +1,16 @@
 import random
 from nextcord.ext import commands
+
 join_msgs = ('Leave your weapons at the door.', 'We just ran out of coffee.',
              "You'll have to be better than that to not be spotted.",
              "Trust the cloak.", "One riot. One Ranger.",
              "Gorlog's breath, another one?",
              "I'm a King's Ranger, as you've probably guessed.",
-             "Everyone stay down. I'm going to ram.")
+             "Everyone stay down. I'm going to ram.", "Welcome, child of fate")
 
 
 class JoinLeave(commands.Cog):
+
     def __init__(self, bot):
         self.bot = bot
 

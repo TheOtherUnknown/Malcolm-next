@@ -1,4 +1,4 @@
-from nextcord.ext import commands
+from nextcord.ext import commands, application_checks
 import nextcord, logging
 
 
@@ -31,34 +31,45 @@ class Roles(commands.Cog):
             else:  # Otherwise, send a new message
                 await chan.send(content=msg)
 
-    @commands.command(usage="#somechannel")
-    @commands.has_permissions(manage_roles=True)
-    async def rolechan(self, ctx):
+    @nextcord.slash_command(dm_permission=False)
+    @application_checks.has_permissions(manage_roles=True)
+    async def rolechan(
+        self,
+        inter: nextcord.Interaction,
+        channel: nextcord.abc.GuildChannel = nextcord.SlashOption(
+            required=True,
+            description='The new role channel',
+            channel_types=[nextcord.ChannelType.text])):
         """Sets the channel in which the bot posts the role message"""
-        chan = ctx.message.channel_mentions[0]
-        if chan.id == self.bot.getConfig('Roles', 'channel'):
+        if channel.id == self.bot.getConfig('Roles', 'channel'):
             return
-        self.bot.setConfig('Roles', 'channel', str(chan.id))
+        self.bot.setConfig('Roles', 'channel', str(channel.id))
         await self.send_message()
-        await ctx.send('Channel set!')
+        await inter.send('Channel set!')
 
-    @commands.command(usage='@somerole')
-    @commands.has_permissions(manage_roles=True)
-    async def roleset(self, ctx, role: nextcord.Role):
+    @nextcord.slash_command(dm_permission=False)
+    @application_checks.has_permissions(manage_roles=True)
+    async def roleset(self,
+                      inter: nextcord.Interaction,
+                      role: nextcord.Role = nextcord.SlashOption(
+                          required=True, description='The role to add')):
         """Assigns an emoji to a reaction role"""
         rolechan = self.bot.getConfig('Roles', 'channel')
         # A message can only have 20 reacts, so limit to the first 20 letters
         if not rolechan or self.cur.execute(
                 'SELECT Count(*) FROM roles').fetchone()[0] > 19:
-            await ctx.send(
+            await inter.send(
                 'The role channel does not exist, or has too many roles!')
             return
-        prompt = await ctx.send(
+        # inter.send() will return a PartialInteractionMessage,
+        # so we have to fetch the full message and get its ID for the check function below
+        prompt = await inter.send(
             'React to this message with an emoji for the role')
+        prompt = (await prompt.fetch()).id
 
         def check(reaction, user):
             # Make sure the react was to the prompt message by the same user
-            return reaction.message == prompt and user.id == ctx.author.id
+            return reaction.message.id == prompt and user.id == inter.user.id
 
         react, _user = await self.bot.wait_for('reaction_add',
                                                timeout=60.0,
@@ -69,16 +80,20 @@ class Roles(commands.Cog):
             (role.name, str(react)))
         self.db.commit()
         await self.send_message()
-        await ctx.send('Role set!')
+        # This is a follow-up message
+        await inter.send('Role set!')
 
-    @commands.command(usage='@somerole')
-    @commands.has_permissions(manage_roles=True)
-    async def rolerm(self, ctx, role: nextcord.Role):
+    @nextcord.slash_command(dm_permission=False)
+    @application_checks.has_permissions(manage_roles=True)
+    async def rolerm(self,
+                     inter: nextcord.Interaction,
+                     role: nextcord.Role = nextcord.SlashOption(
+                         required=True, description='The role to remove')):
         """Removes a role from the reaction roles list"""
         self.cur.execute('DELETE FROM roles WHERE name=?', (role.name, ))
         self.db.commit()
         await self.send_message()
-        await ctx.send('Role removed')
+        await inter.send('Role removed')
 
     @commands.Cog.listener()
     async def on_raw_reaction_add(self, payload):
