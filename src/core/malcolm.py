@@ -1,5 +1,4 @@
 from nextcord.ext import commands
-from core.help import MalcolmHelp
 import yaml
 
 
@@ -9,7 +8,6 @@ class Malcolm(commands.Bot):
     def __init__(self,
                  command_prefix,
                  configpath: str,
-                 help_command=MalcolmHelp(),
                  description=None,
                  **options):
         self.configpath = configpath
@@ -17,7 +15,7 @@ class Malcolm(commands.Bot):
         self.config = yaml.safe_load(conf_file)
         super().__init__(command_prefix,
                          description=description,
-                         help_command=help_command,
+                         help_command=None,
                          **options)
 
     def getConfig(self, section: str, item: str) -> str:
