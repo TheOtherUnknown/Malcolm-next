@@ -59,8 +59,7 @@ class Utils(commands.Cog):
         cdate = inter.guild.created_at
         embed.add_field(
             name='Creation date',
-            value=
-            f"{cdate.ctime()}, {(datetime.now(self.UTC) - cdate).days} days ago"
+            value=f"{cdate.ctime()}, {(datetime.now(self.UTC) - cdate).days} days ago"
         )
         embed.set_thumbnail(url=inter.guild.icon.url)
         embed.set_footer(text=f"ID: {inter.guild.id}")
