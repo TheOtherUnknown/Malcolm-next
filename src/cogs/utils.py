@@ -6,6 +6,7 @@ try:
 except ImportError:
     from backports import zoneinfo
 
+
 # Helper methods
 # Gets the user's roles, converts them to strings, and makes a comma seperated list out of them.
 # Ignore @everyone if they have other roles
@@ -58,7 +59,8 @@ class Utils(commands.Cog):
         cdate = inter.guild.created_at
         embed.add_field(
             name='Creation date',
-            value=f"{cdate.ctime()}, {(datetime.now(self.UTC) - cdate).days} days ago"
+            value=
+            f"{cdate.ctime()}, {(datetime.now(self.UTC) - cdate).days} days ago"
         )
         embed.set_thumbnail(url=inter.guild.icon.url)
         embed.set_footer(text=f"ID: {inter.guild.id}")

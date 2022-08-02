@@ -5,6 +5,7 @@ import yaml
 class Malcolm(commands.Bot):
     """An extension of discord.ext.commands.Bot with configuration
     management and database management"""
+
     def __init__(self,
                  command_prefix,
                  configpath: str,
