@@ -1,8 +1,10 @@
 import nextcord, os
 from nextcord.ext import commands
 from datetime import datetime, timedelta
-import zoneinfo
-
+try:
+    import zoneinfo
+except ImportError:
+    from backports import zoneinfo
 
 # Helper methods
 # Gets the user's roles, converts them to strings, and makes a comma seperated list out of them.

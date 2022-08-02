@@ -1,4 +1,4 @@
-import nextcord, random
+import nextcord, random, sys
 from nextcord.ext import commands
 
 
@@ -10,50 +10,24 @@ class Fun(commands.Cog):
     @nextcord.slash_command()
     async def bofh(self, inter: nextcord.Interaction):
         """Convenient solutions to inconvenient tech problems"""
-        # https://stackoverflow.com/questions/14924721/how-to-choose-a-random-line-from-a-text-file#14924739
-        line_num = 0
-        selected = ""
-        with open("data/excuses.txt") as f:
-            while 1:
-                line = f.readline()
-                if not line:
-                    break
-                line_num += 1
-                if random.uniform(0, line_num) < 1:
-                    selected = line
-        await inter.send(selected.strip())
+        # Wow that was really overcomplicated.
+        lines = open('data/excuses.txt').read().splitlines() # Open file and split lines into a list
+        line = random.choice(lines) # Choose a random line from the list
+        await inter.send(str(line)) # Send the line
 
     @nextcord.slash_command()
     async def roll(self,
                    inter: nextcord.Interaction,
-                   roll: str = nextcord.SlashOption(
-                       description="NUMdSIDE dice to roll", default="1d6")):
+                   sides: int = nextcord.SlashOption(default=6, description="Number of sides on the dice"),
+                   rolls: int = nextcord.SlashOption(default=1, description="Times to roll the dice")):
         """Rolls a dice"""
-        embed = nextcord.Embed(title="Dice Rolls")
-        try:
-            sides = int(roll.split("d")[1])
-            rolls = int(roll.split("d")[0])
-        except Exception:
-            await inter.send(
-                "Wrong format, the commands format is `[number of rolls]d[number of sides]` eg.(1d5, or 10d45)"
-            )
-            return
-
-        if sides < 1:
-            sides = 1
-        elif sides > 1000000000000:
-            sides = 1000000000000
-
-        if rolls < 1:
-            rolls = 1
-        elif rolls > 100:
-            rolls = 100
-
-        total = 0
-
-        for x in range(rolls):
-            val = random.randint(1, sides)
-            total += val
-            embed.add_field(name=f"Dice  #{x + 1}", value=val)
-        embed.set_footer(text=f"Total: {total}")
-        await inter.send(embed=embed)
+        if rolls > 0 and rolls <= 32:
+            if sides > 0 and sides <= sys.maxsize:
+                embed = nextcord.Embed(title="Dice Rolls")
+                for i in range(rolls):
+                    embed.add_field(name=f"Roll {i+1}", value=random.randint(1, sides))
+                await inter.send(embed=embed)
+            else:
+                await inter.send(f"Sides cannot be less than 1 or exceed {sys.maxsize}")
+        else:
+            await inter.send("Rolls cannot be less than 1 or exceed 32")
