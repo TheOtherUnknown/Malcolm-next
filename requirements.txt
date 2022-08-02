@@ -1,3 +1,0 @@
-nextcord==2.0.0
-python_Levenshtein==0.12.2
-PyYAML==6.0
