@@ -21,7 +21,7 @@ db = sqlite3.connect('data/malcolm.db')
 cur = db.cursor()
 
 logging.basicConfig(level=logging.WARN)
-bot = Malcolm(command_prefix=',', intents=intents, configpath=sys.argv[1])
+bot = Malcolm(intents=intents, configpath=sys.argv[1])
 
 
 @bot.event

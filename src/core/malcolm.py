@@ -6,15 +6,13 @@ class Malcolm(commands.Bot):
     """An extension of discord.ext.commands.Bot with configuration
     management and database management"""
     def __init__(self,
-                 command_prefix,
                  configpath: str,
                  description=None,
                  **options):
         self.configpath = configpath
         conf_file = open(configpath)
         self.config = yaml.safe_load(conf_file)
-        super().__init__(command_prefix,
-                         description=description,
+        super().__init__(description=description,
                          help_command=None,
                          **options)
 
