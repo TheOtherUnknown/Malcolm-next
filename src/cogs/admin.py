@@ -17,11 +17,7 @@ class Admin(commands.Cog):
                        max_value=200,
                        description='Number of messages to delete')):
         """Mass-deletes messages in the current channel"""
-        # Num can't be >100. That needs to be checked at some point
-        async for message in inter.channel.history(limit=num):
-            await message.delete()
-        await asyncio.sleep(
-            1.2)  # Sleep for a bit so everything gets deleted on time
+        await inter.channel.purge(limit=num)
 
     # == START OWNER COMMANDS == #
     @nextcord.slash_command()
