@@ -1,5 +1,5 @@
 from nextcord.ext import commands, application_checks
-import nextcord, asyncio
+import nextcord
 
 
 class Admin(commands.Cog):
