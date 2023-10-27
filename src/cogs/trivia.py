@@ -171,33 +171,16 @@ class Trivia(commands.Cog):
         await inter.send(embed=embed)
 
     @trivia.subcommand()
-    async def add(self, inter: nextcord.Interaction):
+    async def add(self, inter: nextcord.Interaction, question: str,
+                  answer: str):
         """Adds a new question to the database"""
         senderscore = self.cur.execute('SELECT rank FROM score WHERE id = ?',
                                        (inter.user.id, )).fetchone()
 
-        def check(message: nextcord.Message) -> bool:
-            """Predicate function to ensure the same user responds
-            in the same channel"""
-            return message.channel.id == inter.channel_id and inter.user == message.author
-
         if senderscore is not None and senderscore[0] > 24:
             try:
-                await inter.send('Enter the question to add: ')
-                question = await self.bot.wait_for('message',
-                                                   check=check,
-                                                   timeout=60.0)
-                await inter.send('Enter the answer: ')
-                answer = await self.bot.wait_for('message',
-                                                 check=check,
-                                                 timeout=60.0)
-            except TimeoutError:
-                await inter.send('Timed out, quitting...')
-                return
-            try:
                 self.cur.execute('INSERT INTO trivia VALUES(?,?,?)',
-                                 (question.clean_content, answer.clean_content,
-                                  inter.user.id))
+                                 (question, answer, inter.user.id))
                 self.db.commit()
             except sqlite3.IntegrityError:
                 # UNIQUE contraint violated or other problem
@@ -207,7 +190,7 @@ class Trivia(commands.Cog):
                 self.db.rollback()
             # We added a question! Send success message
             await inter.send('Question was added!')
-            self.last_add = question.clean_content
+            self.last_add = question
         else:
             # We don't meet the precondition, send an error
             await inter.send(
