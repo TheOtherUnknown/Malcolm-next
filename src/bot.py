@@ -17,11 +17,17 @@ intents.guilds = True  # Docs says so
 intents.guild_reactions = True  # For roles
 intents.message_content = True  # Needed for commands now :(
 
+mentions = nextcord.AllowedMentions()
+mentions.everyone = False
+mentions.roles = False
+
 db = sqlite3.connect('data/malcolm.db')
 cur = db.cursor()
 
 logging.basicConfig(level=logging.WARN)
-bot = Malcolm(intents=intents, configpath=sys.argv[1])
+bot = Malcolm(intents=intents,
+              allowed_mentions=mentions,
+              configpath=sys.argv[1])
 
 
 @bot.event

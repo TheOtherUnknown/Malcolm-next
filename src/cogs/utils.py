@@ -95,10 +95,10 @@ class Utils(commands.Cog):
         if datetime.now(self.UTC) > (joindate + timedelta(days=1)):  # One day
             await inter.user.add_roles(
                 nextcord.utils.get(inter.guild.roles, name='Verified'))
-            await inter.send('✅')  # Check mark
+            await inter.send('✅', ephemeral=True)  # Check mark
         else:  # You didn't meet the time :(
             await inter.send(
-                'You don\'t qualify to be verified yet! Check back 24 hours after you join.'
+                'You don\'t qualify to be verified yet! Check back 24 hours after you join.', ephemeral=True
             )
 
     @nextcord.slash_command()

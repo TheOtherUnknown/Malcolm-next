@@ -3,6 +3,7 @@ from nextcord.ext import commands, application_checks
 import nextcord, sqlite3
 from asyncio import sleep, TimeoutError
 from Levenshtein import ratio
+from nextcord.utils import escape_markdown
 
 locked_channels = []  # Channel IDs that are currently in use by a game
 
@@ -117,7 +118,8 @@ class Trivia(commands.Cog):
                     if round_result is not None:
                         play = False
                         self.tally_scores(round_result)
-                        await inter.send(str(resp.author) + ' Wins!')
+                        await inter.send(
+                            escape_markdown(resp.author.display_name + ' Wins!'))
                         locked_channels.remove(inter.channel_id)
                     questions.add(question)
                 else:
@@ -194,8 +196,8 @@ class Trivia(commands.Cog):
         else:
             # We don't meet the precondition, send an error
             await inter.send(
-                'You need at least 25 trivia wins to add questions, try again later!'
-            )
+                'You need at least 25 trivia wins to add questions, try again later!',
+                ephemeral=True)
 
     @trivia.subcommand()
     @application_checks.has_permissions(manage_messages=True)
@@ -208,4 +210,4 @@ class Trivia(commands.Cog):
                          (self.last_add, ))
         self.db.commit()
         self.last_add = None
-        await inter.send('Last question was removed')
+        await inter.send('Last question was removed', ephemeral=True)
