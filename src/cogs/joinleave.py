@@ -1,5 +1,6 @@
 import random
 from nextcord.ext import commands
+from nextcord.utils import escape_markdown
 
 join_msgs = ('Leave your weapons at the door.', 'We just ran out of coffee.',
              "You'll have to be better than that to not be spotted.",
@@ -28,4 +29,4 @@ class JoinLeave(commands.Cog):
         """Any time a member leaves, send a message"""
         channel = member.guild.system_channel
         if channel is not None:
-            await channel.send(f'{member} has left the server')
+            await channel.send(f'{escape_markdown(member.name)} has left the server')
