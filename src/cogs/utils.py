@@ -32,7 +32,7 @@ class Utils(commands.Cog):
         embed.add_field(name="Server count",
                         value=(len(self.bot.guilds)),
                         inline=False)
-        embed.add_field(name="Owner", value=self.bot.owner_id, inline=False)
+        # embed.add_field(name="Owner", value=self.bot., inline=False)
         await inter.send(embed=embed)
 
     @nextcord.slash_command()
@@ -41,7 +41,7 @@ class Utils(commands.Cog):
         latency = round(self.bot.latency * 1000, 2)
         return await inter.send('Pong! ' + str(latency) + 'ms')
 
-    @nextcord.slash_command(dm_permission=False)
+    @nextcord.slash_command(contexts=[0])
     async def serverinfo(self, inter: nextcord.Interaction):
         """Displays information about the server"""
         embed = nextcord.Embed(title=inter.guild.name)
@@ -56,13 +56,14 @@ class Utils(commands.Cog):
         cdate = inter.guild.created_at
         embed.add_field(
             name='Creation date',
-            value=f"{cdate.ctime()}, {(datetime.now(self.UTC) - cdate).days} days ago"
+            value=
+            f"{cdate.ctime()}, {(datetime.now(self.UTC) - cdate).days} days ago"
         )
         embed.set_thumbnail(url=inter.guild.icon.url)
         embed.set_footer(text=f"ID: {inter.guild.id}")
         await inter.send(embed=embed)
 
-    @nextcord.slash_command(dm_permission=False)
+    @nextcord.slash_command(contexts=[0])
     async def userinfo(self,
                        inter: nextcord.Interaction,
                        userid: nextcord.Member = nextcord.SlashOption(
@@ -98,8 +99,8 @@ class Utils(commands.Cog):
             await inter.send('✅', ephemeral=True)  # Check mark
         else:  # You didn't meet the time :(
             await inter.send(
-                'You don\'t qualify to be verified yet! Check back 24 hours after you join.', ephemeral=True
-            )
+                'You don\'t qualify to be verified yet! Check back 24 hours after you join.',
+                ephemeral=True)
 
     @nextcord.slash_command()
     async def time(

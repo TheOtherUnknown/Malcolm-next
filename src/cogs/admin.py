@@ -7,7 +7,7 @@ class Admin(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @nextcord.slash_command(dm_permission=False)
+    @nextcord.slash_command(contexts=[0])
     @application_checks.has_permissions(manage_messages=True)
     async def nuke(self,
                    inter: nextcord.Interaction,
