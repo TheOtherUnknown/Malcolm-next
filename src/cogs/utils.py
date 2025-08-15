@@ -89,7 +89,7 @@ class Utils(commands.Cog):
                                member: nextcord.Member):
         await self.userinfo(inter, member)
 
-    @nextcord.slash_command()
+    @nextcord.slash_command(contexts=[0])
     async def verify(self, inter: nextcord.Interaction):
         """Add yourself to the verified user role in the server, if you qualify"""
         joindate = inter.user.joined_at
